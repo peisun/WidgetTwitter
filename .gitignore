@@ -1,3 +1,5 @@
+# githubのgitignore/Android.gitignoreを参照
+
 # built application files
 *.apk
 *.ap_
@@ -9,13 +11,13 @@
 *.class
 
 # generated files
-/bin
-/gen
-/obj
+bin/
+gen/
+obj/
 
 # local
-/asset/key.txt
+assets/key.txt
 .DS_Store
-/.git
+.git/
 #.*
 
