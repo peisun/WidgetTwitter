@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, ShuzobotwidgetActivity!</string>
+    <string name="app_name">Shuzobotwidget</string>
+    <string name="consentfollow_message">修造botをフォローします。</string>
+    <string name="createdFriendship_toast"> さんをフォローしました。</string>
+    <string name="sorry">ごめんなさい。</string>
+    <string name="nocreatedFriendship_toast">さんをフォローできませんでした。</string>
+    <string name="pleaseanother_createFrinedship">ブラウザか別のアプリケーションnフォローしてください。</string>
+	<string name="init_message">あわてるな！人生待つことも大事だ！でも熱い心は忘れるな！</string>
+	<string name="signin_message">まずはSignInだ。そして、熱くなれ！</string>
+	<string name="fileerror_message">人生いくらでもやり直すことはできるぞ！データを消去してもう一度SignInだ！俺についてこい！！</string>
+	<string name="errorGetTimeline">Networkがおかしいぞ！フットワークを軽くすれば、絶対追いつけるぞ！</string>
+</resources>
