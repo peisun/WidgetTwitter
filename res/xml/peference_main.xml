@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <CheckBoxPreference android:title="@string/menu_wifionly" 
+        android:key="@string/menu_wifionly" 
+        android:summaryOn="@string/summary_wifionly_on" 
+        android:summaryOff="@string/summary_wifionly_off" 
+        android:defaultValue="@string/defaultValuewifionly"/>
+    <ListPreference android:key="@string/menu_access_time" 
+        android:title="@string/menu_access_time" 
+        android:summary="@string/summary_access_time"/>
+    <Preference android:title="@string/menu_about" 
+        android:key="@string/menu_about" 
+        android:summary="@string/summary_about"/>
+    
+    
+
+</PreferenceScreen>

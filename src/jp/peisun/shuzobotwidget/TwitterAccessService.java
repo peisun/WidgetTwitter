@@ -18,12 +18,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.os.PowerManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -51,11 +54,16 @@ public class TwitterAccessService extends Service {
 	public final static String INTENT_IS_SHUZO = "jp.peisun.shuzobotwidget.is_shuzo";
 	public final static String INTENT_FOLLOW_SHUZO = "jp.peisun.shuzobotwidget.follow_shuzo";
 	public final static String INTENT_STOP = "jp.peisun.shuzobotwidget.stop";
+	public final static String INTENT_WIDGET_UPDATE ="jp.peisun.shuzobotwidget.widgetupdate";
+	public final static String INTENT_WIFI_CHANGED = "jp.peisun.shuzobotwidget.wifichanged";
 
 
 
 	public final static String SHUZO = "shuzo_matsuoka";
 	public final static String OAUTH = "oauth";
+	
+	// ネットワークについて
+	private final static int DISCONNECT = -1; // >=0はConnectivityManager.TYPE_xxxにあるから
 
 	// AccessToken のファイル名
 	public final static String ACCESS_TOKEN = "AccessToken";
@@ -76,11 +84,13 @@ public class TwitterAccessService extends Service {
 	private int mListNum = 0;
 
 	// ハンドラ
-	private final int MSG_GETTIMELINE = 1;
+	private final int MSG_WIDGET_UPDATE = 1;
+	private final int MSG_WAIT_GETTIMELINE = 2;
+	private final long HANDLER_WAIT_TIME = 2000;
 	private WaitHandler mHandler = new WaitHandler();
 
 	// コンフィグレーション
-	private boolean mWifiOnly = false;	// true:Wifi Only false:other
+	private boolean mWifiOnly = true;	// true:Wifi Only false:other
 	@Override
 	public IBinder onBind(Intent arg0) {
 		// TODO 自動生成されたメソッド・スタブ
@@ -96,6 +106,8 @@ public class TwitterAccessService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		// TODO 自動生成されたメソッド・スタブ
+		
+		// Twitterのインスタンスがなかったときの処理
 		if(mTwitter == null){
 			String[] line = readAssetFile(this,"key.txt");
 			
@@ -129,13 +141,51 @@ public class TwitterAccessService extends Service {
 				stopSelf();
 			}
 		}
+		// インテントの処理
 		String action = intent.getAction();
 		if(action.equals(INTENT_READ_SHUZO)){
-			if(chkWifiStatus() ==true && mWifiOnly == true){
+			int connectType = ConectivityStatus();
+			if(connectType == ConnectivityManager.TYPE_WIFI){
+				// WIFIに接続されていたら、無条件にTimelineを取得
 				actionGetTimelineUser();
 			}
-			else if(mWifiOnly == false){
+			else if(connectType != ConnectivityManager.TYPE_WIFI && mWifiOnly == false){
+				// WIFI接続じゃなくてもよいなら、Timelineを取得
 				actionGetTimelineUser();
+			}
+			else {
+				// たぶんnetworkに接続されていない
+			}
+		}
+		// Wifiの状態が変化したとき
+		else if(action.equals(INTENT_WIFI_CHANGED)){
+			int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
+			// WIFI接続されたら、Timelineを取得
+			if(state == WifiManager.WIFI_STATE_ENABLED){
+				Log.d(TAG,"WifiManager.WIFI_STATE_CHANGED_ACTION: WIFI_STATE_ENABLED");
+				// どうも、WIFI接続されても、ちょっと待たないといけないっぽい
+				mHandler.waitGetTimeline();
+
+				
+			}
+			else if(mWifiOnly == true && state != WifiManager.WIFI_STATE_ENABLED){
+				Log.d(TAG,"WifiManager.WIFI_STATE_CHANGED_ACTION: OTHER");
+				
+				// WIFI接続時のみの取得で、WiFi接続が切られたら定期取得を止める
+				cancelGetTimelineUser();
+			}
+			else {
+				Log.d(TAG,"WifiManager.WIFI_STATE_CHANGED_ACTION: no connect");
+			}
+			
+		}
+		else if(action.equals(INTENT_WIDGET_UPDATE)){
+			if(mResponselist != null){
+				actionWidgetUpdate();
+			}
+			else {
+				Intent i = new Intent(INTENT_READ_SHUZO);
+				this.startService(i);
 			}
 		}
 		else if(action.equals(INTENT_STOP)){
@@ -149,16 +199,35 @@ public class TwitterAccessService extends Service {
 		return START_STICKY;
 		//return super.onStartCommand(intent, flags, startId);
 	}
-	private void actionGetTimelineUser(){
-		mResponselist = getTimelineUser(mShuzoBot);
-		if(mResponselist != null && mResponselist.size() != 0){
-			if(mListNum < mResponselist.size()){
-				String status_text = mResponselist.get(mListNum).getText();
-				updateStatusText(splitStatusText(status_text));
-				mListNum++;
-				mHandler.waitGetTimeline();
-			}
+	private void actionWidgetUpdate(){
+		if(mResponselist != null && mListNum < mResponselist.size()){
+			String status_text = mResponselist.get(mListNum).getText();
+			updateStatusText(splitStatusText(status_text));
+			mListNum++;
+			if(mListNum > mResponselist.size()){
+				mListNum = 0;
+			}	
+			mHandler.waitWidgetUpdate(mUpdateTime);
 		}
+		else {
+			updateStatusText(splitStatusText(this.getString(R.string.init_message)));
+		}
+	}
+	
+	private void actionGetTimelineUser(){
+		ResponseList<Status> list = null;
+		list = getTimelineUser(mShuzoBot);
+		if(list != null && list.size() != 0){
+			// Timelineが取得できたら、新しいものと入れ替え
+			mResponselist = list;
+			actionWidgetUpdate();
+		}
+		// Timelineが取得できなくても、すでに取得できているものがあれば
+		// それを表示
+		else if(mResponselist != null){
+			actionWidgetUpdate();
+		}
+		// まったくもって取得できなかったら、エラーらしきものを表示
 		else {
 			updateStatusText(getString(R.string.errorGetTimeline));
 		}
@@ -196,6 +265,7 @@ public class TwitterAccessService extends Service {
 		mTwitter = new TwitterFactory().getInstance();
 		mTwitter.setOAuthConsumer(consumer[0], consumer[1]);
 		mTwitter.setOAuthAccessToken(accessToken);
+		Log.d(TAG,"TwitterFactory.getInstanc");
 
 	}
 
@@ -220,6 +290,12 @@ public class TwitterAccessService extends Service {
 		mAmWaitRequest.cancel(readTwitterSender);
 		mAmWaitRequest.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,current,readTwitterSender);
 
+	}
+	private void cancelGetTimelineUser(){
+		Intent intent = new Intent(INTENT_READ_SHUZO);
+		PendingIntent readTwitterSender = PendingIntent.getService(this,0, intent, 0);
+		AlarmManager mAmWaitRequest =(AlarmManager)getSystemService(ALARM_SERVICE);
+		mAmWaitRequest.cancel(readTwitterSender);
 	}
 	private void showToast(String message){
 		// 第3引数は、表示期間（LENGTH_SHORT、または、LENGTH_LONG）
@@ -320,40 +396,58 @@ public class TwitterAccessService extends Service {
 		manager.updateAppWidget(thisWidget, remoteViews);
 
 	}
-	private boolean chkWifiStatus(){
-		WifiManager wifiManager = (WifiManager)this.getSystemService(Context.WIFI_SERVICE);
-		int state = wifiManager.getWifiState();
-		if(state == WifiManager.WIFI_STATE_ENABLING){
-			Log.d(TAG,"WifiManager: WIFI_STATE_ENABLING");
-			return true;
+	private int ConectivityStatus(){
+		int connectType;
+		ConnectivityManager connectivityManager = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netinfo = connectivityManager.getActiveNetworkInfo();
+		if(netinfo != null){
+			connectType = netinfo.getType();
+			Log.d(TAG,"Connecting " + netinfo.getTypeName());
 		}
 		else {
-			Log.d(TAG,"WifiManager: OTHER");
-			return false;
+			connectType = DISCONNECT;
 		}
+		return connectType;
+	}
+	private boolean pmisScreen(){
+		// PowerManagerを取得する
+		boolean screen;
+		PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+		screen = pm.isScreenOn();
+		// スクリーンが暗いままならlockを解除する
+		if(screen==false){
+			Log.d(TAG,"ScreenOff");
+		}
+		else {
+			Log.d(TAG,"ScreenOn");
+		}
+		return screen;
 	}
 	class WaitHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
 			switch(msg.what){
-			case MSG_GETTIMELINE:
-				if(mListNum < mResponselist.size()){
-					String status_text = mResponselist.get(mListNum).getText();
-					updateStatusText(splitStatusText(status_text));
-					mListNum++;
-					if(mListNum > mResponselist.size()){
-						mListNum = 0;
-					}
-					mHandler.waitGetTimeline();
+			case MSG_WIDGET_UPDATE:
+				if(pmisScreen() == true && mResponselist != null && mListNum < mResponselist.size()){
+					actionWidgetUpdate();
+					
 				}
+				mHandler.waitWidgetUpdate(mUpdateTime);
 				break;
+			case MSG_WAIT_GETTIMELINE:
+				actionGetTimelineUser();
+				this.removeMessages(MSG_WAIT_GETTIMELINE);
 			default:
 				break;
 			}
 		}
+		public void waitWidgetUpdate(long time){
+			this.removeMessages(MSG_WIDGET_UPDATE);  
+			sendMessageDelayed(obtainMessage(MSG_WIDGET_UPDATE), time);
+		}
 		public void waitGetTimeline(){
-			this.removeMessages(MSG_GETTIMELINE);  
-			sendMessageDelayed(obtainMessage(MSG_GETTIMELINE), mUpdateTime);
+			this.removeMessages(MSG_WAIT_GETTIMELINE);  
+			sendMessageDelayed(obtainMessage(MSG_WAIT_GETTIMELINE), HANDLER_WAIT_TIME);
 		}
 	}
 }

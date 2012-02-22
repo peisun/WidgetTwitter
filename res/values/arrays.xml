@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<string-array name="entries_access_time">
+    <item>10分</item>
+ <item>@string/default_access_time</item>  
+ <item>30分</item>  
+ <item>60分</item> 
+ <item>更新ボタン</item> 
+</string-array>     
+<string-array name="entryvalue_snooze">  
+    <item>600000</item>
+ <item>@string/defaultValueAccessTime</item>  
+ <item>1800000</item>  
+ <item>3600000</item>  
+</string-array>  
+</resources>

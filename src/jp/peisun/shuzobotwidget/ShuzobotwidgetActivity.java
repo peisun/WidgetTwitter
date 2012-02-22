@@ -106,6 +106,7 @@ public class ShuzobotwidgetActivity extends Activity implements OnClickListener 
 				startService(i);
 			}
 			mTwitter.shutdown();
+			mTwitter = null;
 			
 		}
 		

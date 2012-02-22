@@ -9,7 +9,25 @@
     <string name="nocreatedFriendship_toast">さんをフォローできませんでした。</string>
     <string name="pleaseanother_createFrinedship">ブラウザか別のアプリケーションnフォローしてください。</string>
 	<string name="init_message">あわてるな！人生待つことも大事だ！でも熱い心は忘れるな！</string>
-	<string name="signin_message">まずはSignInだ。そして、熱くなれ！</string>
+	<string name="signin_message">まずはアプリケーションの認証だ。そして、タップすれば熱くなれるぞ！</string>
 	<string name="fileerror_message">人生いくらでもやり直すことはできるぞ！データを消去してもう一度SignInだ！俺についてこい！！</string>
 	<string name="errorGetTimeline">Networkがおかしいぞ！フットワークを軽くすれば、絶対追いつけるぞ！</string>
+
+	<!-- Preference -->
+	<string name="menu_oauth">アプリケーションの認証</string>
+	<string name="menu_wifionly">WiFi接続時のみ更新</string>
+	<string name="menu_access_time">更新間隔</string>
+	<string name="menu_about">このアプリケーションについて</string>
+	
+	<!-- Summary -->
+	<string name="summary_wifionly_off">チェックするとWiFi接続時のみTwitterにアクセスします。</string>
+	<string name="summary_wifionly_on">チェックを外すといつでもTwitterにアクセスします。</string>
+	<string name="summary_access_time">Twitterへのアクセス間隔の時間を設定します。</string>
+	<string name="summary_about">このアプリケーションについて、少しだけ説明します。</string>
+	<!-- デフォルト表示 -->
+	
+	<string name="default_access_time">15分</string>
+	<!-- デフォルトvalue -->
+	<string name="defaultValuewifionly">true</string>
+	<string name="defaultValueAccessTime">900000</string>
 </resources>
