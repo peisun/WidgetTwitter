@@ -13,9 +13,11 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.appwidget.AppWidgetManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
@@ -56,11 +58,13 @@ public class TwitterAccessService extends Service {
 	public final static String INTENT_STOP = "jp.peisun.shuzobotwidget.stop";
 	public final static String INTENT_WIDGET_UPDATE ="jp.peisun.shuzobotwidget.widgetupdate";
 	public final static String INTENT_WIFI_CHANGED = "jp.peisun.shuzobotwidget.wifichanged";
+	public final static String INTENT_SCREEN_CHANGED = "jp.peisun.shuzobotwidget.screenchanged";
 
 
 
 	public final static String SHUZO = "shuzo_matsuoka";
 	public final static String OAUTH = "oauth";
+	public final static String SCREEN = "screen";
 	
 	// ネットワークについて
 	private final static int DISCONNECT = -1; // >=0はConnectivityManager.TYPE_xxxにあるから
@@ -73,8 +77,10 @@ public class TwitterAccessService extends Service {
 	public static RequestToken mRequestToken = null;
 	private long mRequestWaitTime = 10*60*1000; // 10分
 	private final static int PAGING_SIZE = 20;
-	private final static long mUpdateTime = 60*1000; // 1分
+	private final static long mUpdateTime = 15*1000; // 1分
 	private long lestId = 0;
+	private int retry = 0;
+	private final static int RETRY_MAX = 3;
 
 	// 修造bot
 	private String mShuzoBot = "shuzo_matsuoka";
@@ -86,7 +92,8 @@ public class TwitterAccessService extends Service {
 	// ハンドラ
 	private final int MSG_WIDGET_UPDATE = 1;
 	private final int MSG_WAIT_GETTIMELINE = 2;
-	private final long HANDLER_WAIT_TIME = 2000;
+	private final int MSG_SCREEN_OFF = 3;
+	private final long WIFI_ENABLED_WAIT = 2000;
 	private WaitHandler mHandler = new WaitHandler();
 
 	// コンフィグレーション
@@ -179,6 +186,13 @@ public class TwitterAccessService extends Service {
 			}
 			
 		}
+		else if(action.equals(INTENT_SCREEN_CHANGED)){
+			boolean screen = intent.getBooleanExtra(SCREEN, false);
+			Log.d(TAG,"INTENT_SCREEN_CHANGED "+screen);
+			if(screen == false){
+				mHandler.scrrenOff();
+			}
+		}
 		else if(action.equals(INTENT_WIDGET_UPDATE)){
 			if(mResponselist != null){
 				actionWidgetUpdate();
@@ -200,6 +214,7 @@ public class TwitterAccessService extends Service {
 		//return super.onStartCommand(intent, flags, startId);
 	}
 	private void actionWidgetUpdate(){
+		Log.d(TAG,"actionWidgetUpdate");
 		if(mResponselist != null && mListNum < mResponselist.size()){
 			String status_text = mResponselist.get(mListNum).getText();
 			updateStatusText(splitStatusText(status_text));
@@ -355,11 +370,20 @@ public class TwitterAccessService extends Service {
 			Log.d(TAG,"getUserTimline...");
 
 			list = mTwitter.getUserTimeline(name,paging);
-
+			retry = 0; // TwitterException が発生した場合は、初期化されないはず
 			Log.d(TAG,"getUserTimeline " + name + ":"+list.size());
 		}
 		catch(TwitterException te){
 			te.printStackTrace();
+			if(retry < RETRY_MAX){
+				// RETRY_MAXまではハンドラで待ってみる
+				mHandler.waitGetTimeline();
+				retry++;
+			}
+			else {
+				cancelGetTimelineUser(); // 設定されているwaitをキャンセルする。
+				waitRequest(mRequestWaitTime); // 改めて、設定しなおす
+			}
 		}
 		return list;
 	}
@@ -428,18 +452,25 @@ public class TwitterAccessService extends Service {
 		public void handleMessage(Message msg) {
 			switch(msg.what){
 			case MSG_WIDGET_UPDATE:
-				if(pmisScreen() == true && mResponselist != null && mListNum < mResponselist.size()){
+//				if(pmisScreen() == true && mResponselist != null && mListNum < mResponselist.size()){
+				if(mResponselist != null && mListNum < mResponselist.size()){
 					actionWidgetUpdate();
-					
 				}
 				mHandler.waitWidgetUpdate(mUpdateTime);
 				break;
 			case MSG_WAIT_GETTIMELINE:
 				actionGetTimelineUser();
 				this.removeMessages(MSG_WAIT_GETTIMELINE);
+			case MSG_SCREEN_OFF:
+				break;
 			default:
 				break;
 			}
+		}
+		public void scrrenOff(){
+			this.removeMessages(MSG_WIDGET_UPDATE); 
+			this.removeMessages(MSG_SCREEN_OFF);
+			sendMessage(obtainMessage(MSG_SCREEN_OFF));
 		}
 		public void waitWidgetUpdate(long time){
 			this.removeMessages(MSG_WIDGET_UPDATE);  
@@ -447,7 +478,30 @@ public class TwitterAccessService extends Service {
 		}
 		public void waitGetTimeline(){
 			this.removeMessages(MSG_WAIT_GETTIMELINE);  
-			sendMessageDelayed(obtainMessage(MSG_WAIT_GETTIMELINE), HANDLER_WAIT_TIME);
+			sendMessageDelayed(obtainMessage(MSG_WAIT_GETTIMELINE), WIFI_ENABLED_WAIT);
 		}
+	}
+	@Override
+	public void onCreate() {
+		// TODO 自動生成されたメソッド・スタブ
+		// Intent.ACTION_SCrEEN_ON/OFFはManifestに書いておいてもダメらしい
+		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
+	    getApplicationContext().registerReceiver(new BroadcastReceiver() {
+	        @Override
+	        public void onReceive(Context context, Intent intent) {
+	          Log.d(TAG,intent.getAction());
+	          
+	        }
+	    }, filter);
+	    
+	    filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
+	    this.getApplicationContext().registerReceiver(new BroadcastReceiver() {
+	        @Override
+	        public void onReceive(Context context, Intent intent) {
+	        	Log.d(TAG,intent.getAction());
+	        	mHandler.scrrenOff();
+	        }
+	    }, filter);
+		super.onCreate();
 	}
 }

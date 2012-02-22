@@ -52,6 +52,7 @@
                 <action android:name ="jp.peisun.shuzobotwidget.stop"/>
                 <action android:name="jp.peisun.shuzobotwidget.readshuzo"/>
                 <action android:name="jp.peisun.shuzobotwidget.wifichanged"/>
+                <action android:name="jp.peisun.shuzobotwidget.screenchanged"/>
             </intent-filter>
 
         </service>
