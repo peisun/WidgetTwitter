@@ -149,6 +149,7 @@ public class TwitterAccessService extends Service {
 			}
 		}
 		// インテントの処理
+		if(intent != null){
 		String action = intent.getAction();
 		if(action.equals(INTENT_READ_SHUZO)){
 			int connectType = ConectivityStatus();
@@ -209,6 +210,7 @@ public class TwitterAccessService extends Service {
 			}
 			stopSelf();
 		}
+		}
 
 		return START_STICKY;
 		//return super.onStartCommand(intent, flags, startId);
@@ -236,17 +238,25 @@ public class TwitterAccessService extends Service {
 			// Timelineが取得できたら、新しいものと入れ替え
 			mResponselist = list;
 			actionWidgetUpdate();
+			waitRequest(mRequestWaitTime);
 		}
 		// Timelineが取得できなくても、すでに取得できているものがあれば
 		// それを表示
-		else if(mResponselist != null){
+		else if(list == null && mResponselist != null){
 			actionWidgetUpdate();
+			waitRequest(mRequestWaitTime);
+		}
+		// リトライをかける
+		else if(retry < RETRY_MAX){
+			retry++;
+			updateStatusText(getString(R.string.errorGetTimeline));
+			mHandler.waitGetTimeline();
 		}
 		// まったくもって取得できなかったら、エラーらしきものを表示
 		else {
 			updateStatusText(getString(R.string.errorGetTimeline));
 		}
-		waitRequest(mRequestWaitTime);
+		
 	}
 	public static String[] readAssetFile(Context context,String filename){
 		String[] split = null;
@@ -370,20 +380,15 @@ public class TwitterAccessService extends Service {
 			Log.d(TAG,"getUserTimline...");
 
 			list = mTwitter.getUserTimeline(name,paging);
-			retry = 0; // TwitterException が発生した場合は、初期化されないはず
+			
 			Log.d(TAG,"getUserTimeline " + name + ":"+list.size());
 		}
 		catch(TwitterException te){
 			te.printStackTrace();
-			if(retry < RETRY_MAX){
-				// RETRY_MAXまではハンドラで待ってみる
-				mHandler.waitGetTimeline();
-				retry++;
-			}
-			else {
-				cancelGetTimelineUser(); // 設定されているwaitをキャンセルする。
-				waitRequest(mRequestWaitTime); // 改めて、設定しなおす
-			}
+			
+		}
+		if(list != null){
+			retry = 0;
 		}
 		return list;
 	}
@@ -459,8 +464,8 @@ public class TwitterAccessService extends Service {
 				mHandler.waitWidgetUpdate(mUpdateTime);
 				break;
 			case MSG_WAIT_GETTIMELINE:
+				Log.d(TAG,"MSG_WAIT_GETTIMELINE");
 				actionGetTimelineUser();
-				this.removeMessages(MSG_WAIT_GETTIMELINE);
 			case MSG_SCREEN_OFF:
 				break;
 			default:
@@ -477,6 +482,7 @@ public class TwitterAccessService extends Service {
 			sendMessageDelayed(obtainMessage(MSG_WIDGET_UPDATE), time);
 		}
 		public void waitGetTimeline(){
+			Log.d(TAG,"Handler:waitGetTimeline");
 			this.removeMessages(MSG_WAIT_GETTIMELINE);  
 			sendMessageDelayed(obtainMessage(MSG_WAIT_GETTIMELINE), WIFI_ENABLED_WAIT);
 		}
