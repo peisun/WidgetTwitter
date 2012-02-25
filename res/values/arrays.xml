@@ -2,15 +2,36 @@
 <resources>
 <string-array name="entries_access_time">
     <item>10分</item>
- <item>@string/default_access_time</item>  
+    <item>15分</item>
+ <item>@string/defaultEntreisAccessUpdate</item>  
  <item>30分</item>  
  <item>60分</item> 
  <item>更新ボタン</item> 
 </string-array>     
-<string-array name="entryvalue_snooze">  
+<string-array name="entryvalue_access_update">  
     <item>600000</item>
- <item>@string/defaultValueAccessTime</item>  
+    <item>900000</item>
+ <item>@string/defaultValueAccessUpdate</item>  
  <item>1800000</item>  
- <item>3600000</item>  
+ <item>3600000</item>
+ <item>-1</item>  
 </string-array>  
+<string-array name="entries_widget_update">
+    <item>15秒</item>
+    <item>30秒</item>
+    <item>60秒</item>
+    <item>5分</item>
+    <item>10分</item>
+    <item>15分</item>
+    <item>@string/defaultValueWidgetUpdate</item>
+</string-array>
+<string-array name="entryvalue_widget_update">
+    <item>15000</item>
+    <item>30000</item>
+    <item>60000</item>
+    <item>300000</item>
+    <item>600000</item>
+    <item>900000</item>
+        <item>@string/defaultValueWidgetUpdate</item>
+</string-array>
 </resources>

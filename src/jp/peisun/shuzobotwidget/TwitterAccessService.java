@@ -30,6 +30,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.PowerManager;
 import android.os.SystemClock;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -65,6 +66,8 @@ public class TwitterAccessService extends Service {
 	public final static String SHUZO = "shuzo_matsuoka";
 	public final static String OAUTH = "oauth";
 	public final static String SCREEN = "screen";
+	
+	
 	
 	// ネットワークについて
 	private final static int DISCONNECT = -1; // >=0はConnectivityManager.TYPE_xxxにあるから
@@ -510,4 +513,6 @@ public class TwitterAccessService extends Service {
 	    }, filter);
 		super.onCreate();
 	}
+	
+	
 }

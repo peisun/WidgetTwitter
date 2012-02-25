@@ -14,20 +14,27 @@
 	<string name="errorGetTimeline">Networkがおかしいぞ！フットワークを軽くすれば、絶対追いつけるぞ！</string>
 
 	<!-- Preference -->
-	<string name="menu_oauth">アプリケーションの認証</string>
+	<string name="menu_oauth">サインイン</string>
 	<string name="menu_wifionly">WiFi接続時のみ更新</string>
-	<string name="menu_access_time">更新間隔</string>
+	<string name="menu_access_update">更新間隔</string>
+	<string name="menu_widget_update">ウィジットの更新時間</string>
 	<string name="menu_about">このアプリケーションについて</string>
 	
 	<!-- Summary -->
+	<string name="summary_widget_update">ウィジットの表示更新時間</string>
+	<string name="summary_oauth">サインインしてアプリケーションの認証してください。</string>
 	<string name="summary_wifionly_off">チェックするとWiFi接続時のみTwitterにアクセスします。</string>
 	<string name="summary_wifionly_on">チェックを外すといつでもTwitterにアクセスします。</string>
-	<string name="summary_access_time">Twitterへのアクセス間隔の時間を設定します。</string>
+	<string name="summary_access_update">Twitterへのアクセス間隔の時間を設定します。</string>
 	<string name="summary_about">このアプリケーションについて、少しだけ説明します。</string>
 	<!-- デフォルト表示 -->
-	
-	<string name="default_access_time">15分</string>
+
 	<!-- デフォルトvalue -->
 	<string name="defaultValuewifionly">true</string>
-	<string name="defaultValueAccessTime">900000</string>
+	<string name="defaultEntreisAccessUpdate">30分</string>
+	<string name="defaultValueAccessUpdate">900000</string>
+	<string name="defaulEntreisWidgetUpdate">30分</string>
+	<string name="defaultValueWidgetUpdate">1800000</string>
+	
+	
 </resources>
