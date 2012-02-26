@@ -10,33 +10,51 @@ import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.preference.PreferenceActivity;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.widget.RemoteViews;
 
 
 public class ShuzoConfigActivity extends PreferenceActivity {
 	private String TAG = "ShuzoConfigActivity";
-	private ConfigData mConfig = new ConfigData(getBaseContext());
-	public static Twitter mTwitter = null;
+	private static ConfigData mConfig = null;
+//	public static Twitter mTwitter = null;
 	public static RequestToken mRequestToken = null;
 	public final static String CALLBACK_URL = "myapp://mainactivity";
+	
+	
+	private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 	
 	private Preference.OnPreferenceChangeListener  onPreferenceChangeListener_checkwifionly =
 		new OnPreferenceChangeListener(){
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
-			
+			CheckBoxPreference cbp = (CheckBoxPreference)preference;
 			boolean check = ((Boolean)newValue).booleanValue();
 			
 			if (check != mConfig.wifionly ) {
 				mConfig.wifionly = check;
 			}
+			if(mConfig.wifionly == true){
+				cbp.setSummaryOn(R.string.summary_wifionly_on);
+	        }
+	        else {
+	        	cbp.setSummaryOff(R.string.summary_wifionly_off);
+	        }
+			mConfig.CommitConfig();
+			sendIntentConfig(ConfigData.Order.ORDER_WIFI);
 	        // 変更を適用するために true を返す  
 	        return true;
 		}
@@ -50,8 +68,9 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 	        String summary = SummaryfindById(R.array.entries_access_time,
 	        		R.array.entryvalue_access_update,mConfig.accessUpdateTime);
 	        listpref.setSummary(summary); 
+	        mConfig.CommitConfig();
 	        
-	        sendIntentConfig();
+	        sendIntentConfig(ConfigData.Order.ORDER_ACCESS_UPDATE);
 	        // 変更を適用するために true を返す  
 	        return true;
 		}
@@ -65,65 +84,126 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 	        String summary = SummaryfindById(R.array.entries_widget_update,
 	        		R.array.entryvalue_widget_update,mConfig.widgetUpdateTime);
 	        listpref.setSummary(summary); 
+	        mConfig.CommitConfig();
 	        
-	        sendIntentConfig();
+	        sendIntentConfig(ConfigData.Order.ORDER_WIDGET_UPDATE);
 
 	        // 変更を適用するために true を返す  
 	        return true;
 		}
 	};
-	private Preference.OnPreferenceChangeListener  onPreferenceChangeListener_oauth =
-		new OnPreferenceChangeListener(){
+	private Preference.OnPreferenceClickListener  onPreferenceClickListener_oauth =
+		new OnPreferenceClickListener(){
 		@Override
-		public boolean onPreferenceChange(Preference preference, Object newValue) {
+		public boolean onPreferenceClick(Preference preference) {
 			mRequestToken = doOauth(null);
-	        
-	        sendIntentConfig();
 
 	        // 変更を適用するために true を返す  
-	        return true;
+	        return false;
+		}
+	};
+	private Preference.OnPreferenceClickListener  onPreferenceClickListener_about =
+		new OnPreferenceClickListener(){
+		@Override
+		public boolean onPreferenceClick(Preference preference) {
+			// TODO 自動生成されたメソッド・スタブ
+			Intent i = new Intent(getApplicationContext(),ShuzobotwidgetActivity.class);
+			startActivity(i);
+			return true;
 		}
 	};
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO 自動生成されたメソッド・スタブ
 		super.onCreate(savedInstanceState);
+		
+		this.addPreferencesFromResource(R.xml.peference_main);
+		
+		
+		// 
+		if(mConfig == null){
+			mConfig = new ConfigData(this);
+			mConfig.getSharedPreferences();
+		}
+		// サインイン
+        CharSequence cs = getText(R.string.menu_oauth);  
+        Preference pref = (Preference)findPreference(cs);   
+        // リスナーを設定する  
+        pref.setOnPreferenceClickListener(onPreferenceClickListener_oauth);
+        // 
+        if(mConfig.isAccessToken()==false){
+        	pref.setTitle(R.string.menu_oauth);
+        }
+        else {
+        	pref.setTitle(mConfig.screenName);
+        }
+        
+        // WiFi Only  
+        cs = getText(R.string.menu_wifionly);  
+        CheckBoxPreference cbp = (CheckBoxPreference)findPreference(cs);   
+        // リスナーを設定する  
+        cbp.setOnPreferenceChangeListener(onPreferenceChangeListener_checkwifionly);
+        cbp.setChecked(mConfig.wifionly);
+        if(mConfig.wifionly){
+        	cbp.setSummaryOff(R.string.summary_wifionly_on);
+        }
+        else {
+        	cbp.setSummaryOff(R.string.summary_wifionly_off);
+        }
+        
+        // 更新時間
+        cs = getText(R.string.menu_access_update);  
+        pref = (Preference)findPreference(cs);   
+        // リスナーを設定する  
+        pref.setOnPreferenceChangeListener(onPreferenceChangeListener_accessUpdate);
+        
+        // 表示間隔
+        cs = getText(R.string.menu_widget_update);  
+        pref = (Preference)findPreference(cs);   
+        // リスナーを設定する  
+        pref.setOnPreferenceChangeListener(onPreferenceChangeListener_widgetUpdate);
+        
+        // about
+        cs = getText(R.string.menu_about);  
+        pref = (Preference)findPreference(cs);   
+        // リスナーを設定する  
+        pref.setOnPreferenceClickListener(onPreferenceClickListener_about);
+        
+
 	}
 	@Override
 	protected void onNewIntent(Intent intent) {
 		// TODO 自動生成されたメソッド・スタブ
 		super.onNewIntent(intent);
+		
 		String action = intent.getAction();
-		if(action.equals(TwitterAccessService.INTENT_IS_SHUZO)){
-			boolean is = intent.getBooleanExtra(TwitterAccessService.SHUZO, false);
-			if(is == false){
-				showShuzoConsentFollowDialog();
-			}
-		}
-		else if(action.equals("android.intent.action.VIEW")){
+		if(action.equals("android.intent.action.VIEW")){
 			Uri uri = intent.getData();
 			if(uri != null && uri.toString().startsWith(CALLBACK_URL)){
 				AccessToken accessToken = getTwitterAccessToken(uri,mRequestToken);
 				
 				// アクセストークンが取れたら、スクリーンネームを取っておく
-				mConfig.screenName = mTwitter.getScreenName();
+				mConfig.screenName = accessToken.getScreenName();
+				
+				// トークンをConfigDataに入れる
+				mConfig.setAccessToken(accessToken.getToken(),accessToken.getTokenSecret());
+				
+				// ここでAccessTokenを保存しておけば次回から認証不要となる
+				mConfig.CommitConfig();
+				
+				sendIntentConfig(ConfigData.Order.ORDER_TOKEN);
+				
+				CharSequence cs = getText(R.string.menu_oauth);  
+		        Preference pref = (Preference)findPreference(cs);
+		        pref.setTitle(mConfig.screenName);
+		        
 				Log.d(TAG,"screenName "+ mConfig.screenName);
 				
-				// ActivityでのTwitterは終わり
-				mTwitter.shutdown();
-				// ここでAccessTokenを保存しておけば次回から認証不要となる
-				try{
-					writeAccessToken(accessToken);
-				}
-				catch (Exception e){
-					Log.d(TAG,"accessTokenファイルセーブ失敗");
-				}
+//				Intent i = new Intent(TwitterAccessService.INTENT_READ_SHUZO);
+//				startService(i);
 				
-				Intent i = new Intent(TwitterAccessService.INTENT_READ_SHUZO);
-				startService(i);
 			}
-			mTwitter.shutdown();
-			mTwitter = null;
+			
 			
 		}
 		
@@ -132,13 +212,13 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 		String authUrl = null;
 		RequestToken requestToken = null;
 		String[] consumer = TwitterAccessService.readAssetFile(this, "key.txt");
-		mTwitter = new TwitterFactory().getInstance();
-		mTwitter.setOAuthConsumer(consumer[0], consumer[1]);
+		TwitterAccessService.mTwitter = new TwitterFactory().getInstance();
+		TwitterAccessService.mTwitter.setOAuthConsumer(consumer[0], consumer[1]);
 
 		if(accessToken == null){
 			//AccessToken accessToken = null;
 			try {
-				requestToken = mTwitter.getOAuthRequestToken(CALLBACK_URL);
+				requestToken = TwitterAccessService.mTwitter.getOAuthRequestToken(CALLBACK_URL);
 				authUrl = requestToken.getAuthorizationURL();
 			}
 			catch(Exception e){
@@ -164,7 +244,7 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 		}
 		Log.d(TAG,"oauth_verifier : " + verifier);
 		try {
-			accessToken = mTwitter.getOAuthAccessToken(requestToken, verifier);
+			accessToken = TwitterAccessService.mTwitter.getOAuthAccessToken(requestToken, verifier);
 		}
 		catch (TwitterException te) {
 	        if(401 == te.getStatusCode()){
@@ -192,32 +272,37 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 	    }
 	    return (String)entries[i];
 	}
-	private void writeAccessToken (AccessToken accessToken)throws Exception {
-    	if(accessToken == null ){
-    		return ;
-    	}
-    	// RequestTokenを保存  
-     	OutputStream out = openFileOutput(TwitterAccessService.ACCESS_TOKEN, MODE_PRIVATE);
-
-    	ObjectOutputStream oos = new ObjectOutputStream(out);  
-    	oos.writeObject(accessToken); 
-    	oos.close();
-    	out.close();
-    }
+	private void sendIntentConfig(int order){
+		Intent i = new Intent(TwitterAccessService.INTEINT_UPDATE_CONFIG);
+		i.putExtra(ConfigData.PF_ORDER, order);
+		i.putExtra(ConfigData.PF_ACCESSTOKEN, mConfig.getAccessToken());
+		i.putExtra(ConfigData.PF_ACCESSTOKENSECRET, mConfig.getAccessTokenSecret());
+		i.putExtra(ConfigData.PF_SCREEN_NAME, mConfig.screenName);
+		i.putExtra(ConfigData.PF_WIFIONLY, mConfig.wifionly);
+		i.putExtra(ConfigData.PF_WIDGET_UPDATE, mConfig.widgetUpdateTime);
+		i.putExtra(ConfigData.PF_ACCESS_UPDATE, mConfig.accessUpdateTime);
+		startService(i);
+	}
+	private void widgetSetResult(int result){
+		// AppWidgetの画面更新
+		final Context context = ShuzoConfigActivity.this;
+		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+		RemoteViews views = new RemoteViews(getPackageName(), R.layout.layoutwidget);
+		ShuzobotAppWidgetProvider.updateAppWidget(context, appWidgetManager,mAppWidgetId, "ほむほむ");
+		appWidgetManager.updateAppWidget(mAppWidgetId, views);
+		Intent resultValue = new Intent();
+		resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+		setResult(result, resultValue);
+	}
 	@Override
-	protected void onResume() {
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// TODO 自動生成されたメソッド・スタブ
-		String filepath = this.getFilesDir().getAbsolutePath() + "/" +  TwitterAccessService.ACCESS_TOKEN;
-		File file = new File(filepath);
-		if(file.exists() == true){
-			mBtnSignIn.setEnabled(false);
-			Intent intent = new Intent(TwitterAccessService.INTENT_READ_SHUZO);
-			startService(intent);
+		if(keyCode == KeyEvent.KEYCODE_BACK) {
+//			widgetSetResult(RESULT_OK);
+			finish();
 		}
-		mConfig.CommitConfig(getBaseContext());
-		super.onResume();
+		return super.onKeyDown(keyCode, event);
 	}
-	private boolean readPreference(){
-		
-	}
+
+	
 }

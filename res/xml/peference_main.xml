@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <Preference android:key="@string/menu_oauth" android:title="@string/menu_oauth" /><CheckBoxPreference android:title="@string/menu_wifionly" 
+    <Preference android:key="@string/menu_oauth" android:title="@string/menu_oauth" android:enabled="true"/>
+    <CheckBoxPreference android:title="@string/menu_wifionly" 
         android:key="@string/menu_wifionly" 
         android:summaryOn="@string/summary_wifionly_on" 
         android:summaryOff="@string/summary_wifionly_off" 
-        android:defaultValue="@string/defaultValuewifionly"/>
+        android:enabled="true"/>
     <ListPreference android:key="@string/menu_access_update" 
         android:title="@string/menu_access_update" 
-        android:summary="@string/summary_access_update" android:entries="@array/entries_access_time" android:entryValues="@array/entryvalue_access_update" android:dialogTitle="@string/menu_access_update"/><ListPreference android:summary="@string/summary_widget_update" android:title="@string/menu_widget_update" android:key="@string/menu_widget_update" android:entries="@array/entries_widget_update" android:entryValues="@array/entryvalue_widget_update" android:dialogTitle="@string/menu_widget_update"/>
+        android:summary="@string/summary_access_update" android:entries="@array/entries_access_time" android:entryValues="@array/entryvalue_access_update" android:dialogTitle="@string/menu_access_update" android:enabled="true"/><ListPreference android:summary="@string/summary_widget_update" android:title="@string/menu_widget_update" android:key="@string/menu_widget_update" android:entries="@array/entries_widget_update" android:entryValues="@array/entryvalue_widget_update" android:dialogTitle="@string/menu_widget_update" android:enabled="true"/>
     <Preference android:title="@string/menu_about" 
         android:key="@string/menu_about" 
-        android:summary="@string/summary_about"/>
+        android:summary="@string/summary_about" android:enabled="true"/>
     
     
     

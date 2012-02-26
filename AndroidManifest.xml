@@ -6,7 +6,6 @@
 
     <uses-sdk android:minSdkVersion="8" />
     <uses-permission android:name="android.permission.INTERNET"></uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 	<uses-feature android:name="android.hardware.wifi" />
 	<uses-permission android:name="android.permission.WAKE_LOCK"/>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
@@ -19,21 +18,24 @@
         <activity
             android:name=".ShuzobotwidgetActivity"
             android:label="@string/app_name" 
-             android:launchMode="singleInstance"
-            >
+           >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+		<activity android:name="ShuzoConfigActivity"
+		    android:label="@string/app_name"
+             android:launchMode="singleInstance">
+		    
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
             	<category android:name="android.intent.category.DEFAULT"/>
             	<category android:name="android.intent.category.BROWSABLE"/>
             	<data android:scheme="myapp" android:host="mainactivity"/>
             </intent-filter>
-        </activity>
-
+            
+		</activity>
         <receiver
             android:name="ShuzobotAppWidgetProvider"
             android:label="@string/app_name" >
@@ -48,15 +50,18 @@
         <service android:name="TwitterAccessService">
             
             <intent-filter>
-                <action android:name="jp.peisun.shuzobotwidget.widgetupdate"/>
+                <action android:name ="jp.peisun.shuzobotwidget.widgetupdate"/>
                 <action android:name ="jp.peisun.shuzobotwidget.stop"/>
-                <action android:name="jp.peisun.shuzobotwidget.readshuzo"/>
-                <action android:name="jp.peisun.shuzobotwidget.wifichanged"/>
-                <action android:name="jp.peisun.shuzobotwidget.screenchanged"/>
+                <action android:name ="jp.peisun.shuzobotwidget.start"/>
+                <action android:name ="jp.peisun.shuzobotwidget.click"/>
+                <action android:name ="jp.peisun.shuzobotwidget.readshuzo"/>
+                <action android:name ="jp.peisun.shuzobotwidget.wifichanged"/>
+                <action android:name ="jp.peisun.shuzobotwidget.screenchanged"/>
+                <action android:name ="jp.peisun.shuzobotwidget.updateconfig"/>
             </intent-filter>
 
         </service>
-        <receiver android:name="ShuzoReceiver" android:permission="android.permission.WAKE_LOCK">
+        <receiver android:name="ShuzoReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.USER_PRESENT"/>
                 <action android:name="android.net.wifi.WIFI_STATE_CHANGED"/>

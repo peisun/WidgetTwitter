@@ -9,7 +9,7 @@
     <string name="nocreatedFriendship_toast">さんをフォローできませんでした。</string>
     <string name="pleaseanother_createFrinedship">ブラウザか別のアプリケーションnフォローしてください。</string>
 	<string name="init_message">あわてるな！人生待つことも大事だ！でも熱い心は忘れるな！</string>
-	<string name="signin_message">まずはアプリケーションの認証だ。そして、タップすれば熱くなれるぞ！</string>
+	<string name="signin_message">まずはサインインだ。そして、タップすれば熱くなれるぞ！</string>
 	<string name="fileerror_message">人生いくらでもやり直すことはできるぞ！データを消去してもう一度SignInだ！俺についてこい！！</string>
 	<string name="errorGetTimeline">Networkがおかしいぞ！フットワークを軽くすれば、絶対追いつけるぞ！</string>
 
@@ -36,5 +36,6 @@
 	<string name="defaulEntreisWidgetUpdate">30分</string>
 	<string name="defaultValueWidgetUpdate">1800000</string>
 	
-	
+	<!-- ImageViewでAccessbiltyがでる対策 -->
+	<string name="contentDescription">リソースが取得できません</string>
 </resources>
