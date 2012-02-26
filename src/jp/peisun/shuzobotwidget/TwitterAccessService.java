@@ -120,21 +120,26 @@ public class TwitterAccessService extends Service {
 				mWidgetId = intent.getIntExtra(WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 				setClickPendingIntent(mWidgetId);
 				// ConfigDataの読み込み
-				if(mConfig == null){
-					mConfig = new ConfigData(getApplicationContext());
-					mConfig.getSharedPreferences();
-					if(mConfig.isAccessToken() == true && mTwitter == null){
-						mTwitter = getTwitterInstance();
-						if(mTwitter == null){
-							updateStatusText(getString(R.string.signin_message));
-							Log.d(TAG,INTENT_START+ "mTwitter null");
-							return START_NOT_STICKY;
-						}
-						else {
-							getShuzoBot();
-						}
+				
+				mConfig = new ConfigData(getApplicationContext());
+				mConfig.getSharedPreferences();
+				if(mConfig.isAccessToken() == true && mTwitter == null){
+					mTwitter = getTwitterInstance();
+					if(mTwitter == null){
+						updateStatusText(getString(R.string.signin_message));
+						Log.d(TAG,INTENT_START+ "mTwitter null");
+						return START_NOT_STICKY;
+					}
+					else {
+						getShuzoBot();
 					}
 				}
+				else {
+					updateStatusText(getString(R.string.signin_message));
+					Log.d(TAG,INTENT_START+ "mConfig null");
+					return START_NOT_STICKY;
+				}
+				
 				
 				//setClickPendingIntent();
 			}
@@ -160,7 +165,7 @@ public class TwitterAccessService extends Service {
 				orderAction(order);
 
 			}
-			else if(mConfig.isAccessToken() == true){
+			else if(mConfig != null && mConfig.isAccessToken() == true){
 				
 				if(action.equals(INTENT_READ_SHUZO)){
 					getShuzoBot();
@@ -204,6 +209,10 @@ public class TwitterAccessService extends Service {
 					}
 				}
 			}
+			else {
+				Log.d(TAG,INTENT_START+ "not signin ?");
+				return START_NOT_STICKY;
+			}
 			
 		}
 
@@ -235,7 +244,13 @@ public class TwitterAccessService extends Service {
 			getShuzoBot();
 			break;
 		case ConfigData.Order.ORDER_ACCESS_UPDATE:
-			waitRequest(mConfig.accessUpdateTime);
+			if(mConfig.accessUpdateTime > 0){
+				waitRequest(mConfig.accessUpdateTime);
+			}
+			else {
+				// <=0 は「更新ボタン」
+				cancelGetTimelineUser();
+			}
 			break;
 		case ConfigData.Order.ORDER_WIDGET_UPDATE:
 			mHandler.waitWidgetUpdate(mConfig.widgetUpdateTime);

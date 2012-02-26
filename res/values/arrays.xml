@@ -4,7 +4,6 @@
     <item>10分</item>
     <item>15分</item>
  <item>@string/defaultEntreisAccessUpdate</item>  
- <item>30分</item>  
  <item>60分</item> 
  <item>更新ボタン</item> 
 </string-array>     
@@ -12,7 +11,6 @@
     <item>600000</item>
     <item>900000</item>
  <item>@string/defaultValueAccessUpdate</item>  
- <item>1800000</item>  
  <item>3600000</item>
  <item>-1</item>  
 </string-array>  
@@ -23,7 +21,7 @@
     <item>5分</item>
     <item>10分</item>
     <item>15分</item>
-    <item>@string/defaultValueWidgetUpdate</item>
+    <item>@string/defaulEntreisWidgetUpdate</item>
 </string-array>
 <string-array name="entryvalue_widget_update">
     <item>15000</item>

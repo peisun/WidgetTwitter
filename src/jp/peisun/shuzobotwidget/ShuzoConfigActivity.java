@@ -67,7 +67,10 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 			mConfig.accessUpdateTime = Long.parseLong(newValue.toString());
 	        String summary = SummaryfindById(R.array.entries_access_time,
 	        		R.array.entryvalue_access_update,mConfig.accessUpdateTime);
-	        listpref.setSummary(summary); 
+	        String title = listpref.getTitle().toString();
+	        String newTitle = String.format("%s %s", title,summary);
+	        listpref.setTitle(newTitle);
+	        //listpref.setSummary(summary); 
 	        mConfig.CommitConfig();
 	        
 	        sendIntentConfig(ConfigData.Order.ORDER_ACCESS_UPDATE);
@@ -80,10 +83,13 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 		@Override
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			ListPreference listpref =(ListPreference)preference;
-			mConfig.accessUpdateTime = Long.parseLong(newValue.toString());
+			mConfig.widgetUpdateTime = Long.parseLong(newValue.toString());
 	        String summary = SummaryfindById(R.array.entries_widget_update,
 	        		R.array.entryvalue_widget_update,mConfig.widgetUpdateTime);
-	        listpref.setSummary(summary); 
+	        String title = listpref.getTitle().toString();
+	        String newTitle = String.format("%s %s", title,summary);
+	        listpref.setTitle(newTitle);
+	        //listpref.setSummary(summary); 
 	        mConfig.CommitConfig();
 	        
 	        sendIntentConfig(ConfigData.Order.ORDER_WIDGET_UPDATE);
@@ -156,12 +162,18 @@ public class ShuzoConfigActivity extends PreferenceActivity {
         pref = (Preference)findPreference(cs);   
         // リスナーを設定する  
         pref.setOnPreferenceChangeListener(onPreferenceChangeListener_accessUpdate);
+        String title = pref.getTitle().toString();
+        String newTitle = String.format("%s %s", title,getString(R.string.defaultEntreisAccessUpdate));
+        pref.setTitle(newTitle);
         
         // 表示間隔
         cs = getText(R.string.menu_widget_update);  
         pref = (Preference)findPreference(cs);   
         // リスナーを設定する  
         pref.setOnPreferenceChangeListener(onPreferenceChangeListener_widgetUpdate);
+        title = pref.getTitle().toString();
+        newTitle = String.format("%s %s", title,getString(R.string.defaulEntreisWidgetUpdate));
+        pref.setTitle(newTitle);
         
         // about
         cs = getText(R.string.menu_about);  
