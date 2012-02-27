@@ -5,7 +5,7 @@
     <item>15分</item>
  <item>@string/defaultEntreisAccessUpdate</item>  
  <item>60分</item> 
- <item>更新ボタン</item> 
+ <item>吹き出しをタップして更新</item> 
 </string-array>     
 <string-array name="entryvalue_access_update">  
     <item>600000</item>
@@ -30,6 +30,6 @@
     <item>300000</item>
     <item>600000</item>
     <item>900000</item>
-        <item>@string/defaultValueWidgetUpdate</item>
+    <item>@string/defaultValueWidgetUpdate</item>
 </string-array>
 </resources>

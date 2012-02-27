@@ -21,8 +21,13 @@ public class ShuzobotAppWidgetProvider extends AppWidgetProvider {
 	@Override
 	public void onDeleted(Context context, int[] appWidgetIds) {
 		// TODO 自動生成されたメソッド・スタブ
-		Intent i = new Intent(TwitterAccessService.INTENT_STOP);
-		context.startService(i);
+		final int N = appWidgetIds.length;
+        for (int i=0; i<N; i++) {
+        	int appWidgetId = appWidgetIds[i];
+        	Intent intent = new Intent(TwitterAccessService.INTENT_STOP);
+        	intent.putExtra(TwitterAccessService.INTENT_STOP, appWidgetId);
+        	context.startService(intent);
+        }
 		super.onDeleted(context, appWidgetIds);
 	}
 

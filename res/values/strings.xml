@@ -9,10 +9,24 @@
     <string name="nocreatedFriendship_toast">さんをフォローできませんでした。</string>
     <string name="pleaseanother_createFrinedship">ブラウザか別のアプリケーションnフォローしてください。</string>
 	<string name="init_message">あわてるな！人生待つことも大事だ！でも熱い心は忘れるな！</string>
-	<string name="signin_message">まずはサインインだ。そして、タップすれば熱くなれるぞ！</string>
+	<string name="signin_message">アイコンをタップしてサインインだ！</string>
+	<string name="gettimeline_message">修造ゲットだぜぇぇぇぇぇぇぇ!</string>
 	<string name="fileerror_message">人生いくらでもやり直すことはできるぞ！データを消去してもう一度SignInだ！俺についてこい！！</string>
-	<string name="errorGetTimeline">Networkがおかしいぞ！フットワークを軽くすれば、絶対追いつけるぞ！</string>
+	<string name="errorGetTimeline">Networkがおかしいぞ！足腰を鍛えば強くなれる！フットワークを軽くすれば、絶対追いつけるぞ！</string>
 
+	<!-- PreferenceKey -->
+	<string name="pfkey_signin">signin</string>
+	<string name="pfkey_wifiony">wifionly</string>
+	<string name="pfkey_access">access</string>
+	<string name="pfkey_widget">widget</string>
+	<string name="pfkey_screenname">screenname</string>
+	<string name="pfkey_accesstoken">accesstoken</string>
+	<string name="pfkey_accesstokensecret">accesstokensecret</string>
+	<string name="pfkey_about">about</string>
+	<!-- Preference Category -->
+	<string name ="category_account">Twitterのアカウント</string>
+	<string name ="category_setting">設定</string>
+	<string name ="category_else">その他</string>
 	<!-- Preference -->
 	<string name="menu_oauth">サインイン</string>
 	<string name="menu_wifionly">WiFi接続時のみ更新</string>
@@ -24,9 +38,10 @@
 	<!-- Summary -->
 	<string name="summary_widget_update">ウィジットの表示更新時間</string>
 	<string name="summary_oauth">サインインしてアプリケーションの認証してください。</string>
+	<string name="summary_oauth_signin">サインインしています。</string>
 	<string name="summary_wifionly_off">チェックするとWiFi接続時のみTwitterにアクセスします。</string>
 	<string name="summary_wifionly_on">チェックを外すといつでもTwitterにアクセスします。</string>
-	<string name="summary_update_type_user">チェックすると「更新間隔」に従い、Twitterにアクセスします。</string>
+	<string name="summary_update_type_user">自動では「修造Bot」を取得しません。ウィジットの吹き出しをタップしてください。</string>
 	<string name="summary_update_type_auto">チェックを外すと、自動ではTwitterにアクセスしません。</string>
 	<string name="summary_access_update">Twitterへのアクセス間隔の時間を設定します。</string>
 	<string name="summary_about">このアプリケーションについて、少しだけ説明します。</string>

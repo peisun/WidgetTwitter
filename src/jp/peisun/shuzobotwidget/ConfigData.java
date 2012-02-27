@@ -1,7 +1,6 @@
 package jp.peisun.shuzobotwidget;
 
 import android.content.Context;
-import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
 
 public class ConfigData {
@@ -9,8 +8,8 @@ public class ConfigData {
 	public long accessUpdateTime;
 	public long widgetUpdateTime;
 	public String screenName;
-	private static String accessToken;
-	private static String accessTokenSecret;
+	public String accessToken;
+	public String accessTokenSecret;
 
 	
 	// 設定ファイルについて
@@ -31,17 +30,19 @@ public class ConfigData {
 	private final static String CONFIG_FILE = "config";
 	
 	
-	private Context mContext;
-	public ConfigData(Context context){
+	private static Context mContext;
+//	public ConfigData(Context context){
+//		mContext = context;
+//		wifionly = Boolean.parseBoolean(context.getString(R.string.defaultValuewifionly));
+//		accessUpdateTime = Long.parseLong(context.getString(R.string.defaultValueAccessUpdate));
+//		widgetUpdateTime = Long.parseLong(context.getString(R.string.defaultValueWidgetUpdate));
+//		screenName = "";
+//		accessToken = "";
+//		accessTokenSecret = "";
+//	}
+	public void getSharedPreferences(Context context){
 		mContext = context;
-		wifionly = Boolean.parseBoolean(context.getString(R.string.defaultValuewifionly));
-		accessUpdateTime = Long.parseLong(context.getString(R.string.defaultValueAccessUpdate));
-		widgetUpdateTime = Long.parseLong(context.getString(R.string.defaultValueWidgetUpdate));
-		screenName = "";
-		accessToken = "";
-		accessTokenSecret = "";
-	}
-	public void getSharedPreferences(){
+//		SharedPreferences mSharedPreferencs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		SharedPreferences mSharedPreferencs = mContext.getSharedPreferences(CONFIG_FILE,Context.MODE_PRIVATE);
 		boolean booleanValue = Boolean.parseBoolean(mContext.getString(R.string.defaultValuewifionly));
 		wifionly = mSharedPreferencs.getBoolean(PF_WIFIONLY,booleanValue);
@@ -52,6 +53,7 @@ public class ConfigData {
 		screenName = mSharedPreferencs.getString(PF_SCREEN_NAME, "");
 		accessToken = mSharedPreferencs.getString(PF_ACCESSTOKEN, "");
 		accessTokenSecret = mSharedPreferencs.getString(PF_ACCESSTOKENSECRET, "");
+
 	}
 	public boolean isAccessToken(){
 		if(accessToken.equals("") == true || accessTokenSecret.equals("") == true){
@@ -72,6 +74,7 @@ public class ConfigData {
 		accessTokenSecret = secret;
 	}
 	public void CommitConfig(){
+//		SharedPreferences mSharedPreferencs = PreferenceManager.getDefaultSharedPreferences(mContext);
 		SharedPreferences mSharedPreferencs = mContext.getSharedPreferences(CONFIG_FILE,Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = mSharedPreferencs.edit();
 		editor.putString(PF_ACCESSTOKEN, accessToken);

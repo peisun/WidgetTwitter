@@ -65,11 +65,13 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 		public boolean onPreferenceChange(Preference preference, Object newValue) {
 			ListPreference listpref =(ListPreference)preference;
 			mConfig.accessUpdateTime = Long.parseLong(newValue.toString());
-	        String summary = SummaryfindById(R.array.entries_access_time,
+			String summary = SummaryfindById(R.array.entries_access_time,
 	        		R.array.entryvalue_access_update,mConfig.accessUpdateTime);
-	        String title = listpref.getTitle().toString();
-	        String newTitle = String.format("%s %s", title,summary);
-	        listpref.setTitle(newTitle);
+			String newTitle = String.format("%s %s", getString(R.string.menu_access_update),summary);
+			listpref.setTitle(newTitle);
+			if(mConfig.accessUpdateTime < 0){
+				listpref.setSummary(getString(R.string.summary_update_type_user));
+			}
 	        //listpref.setSummary(summary); 
 	        mConfig.CommitConfig();
 	        
@@ -86,8 +88,7 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 			mConfig.widgetUpdateTime = Long.parseLong(newValue.toString());
 	        String summary = SummaryfindById(R.array.entries_widget_update,
 	        		R.array.entryvalue_widget_update,mConfig.widgetUpdateTime);
-	        String title = listpref.getTitle().toString();
-	        String newTitle = String.format("%s %s", title,summary);
+	        String newTitle = String.format("%s %s", getString(R.string.menu_widget_update),summary);
 	        listpref.setTitle(newTitle);
 	        //listpref.setSummary(summary); 
 	        mConfig.CommitConfig();
@@ -124,15 +125,14 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 		super.onCreate(savedInstanceState);
 		
 		this.addPreferencesFromResource(R.xml.peference_main);
-		
-		
+	
 		// 
 		if(mConfig == null){
-			mConfig = new ConfigData(this);
-			mConfig.getSharedPreferences();
+			mConfig = new ConfigData();
+			mConfig.getSharedPreferences(getApplicationContext());
 		}
 		// サインイン
-        CharSequence cs = getText(R.string.menu_oauth);  
+        CharSequence cs = getText(R.string.pfkey_signin);  
         Preference pref = (Preference)findPreference(cs);   
         // リスナーを設定する  
         pref.setOnPreferenceClickListener(onPreferenceClickListener_oauth);
@@ -142,10 +142,11 @@ public class ShuzoConfigActivity extends PreferenceActivity {
         }
         else {
         	pref.setTitle(mConfig.screenName);
+        	pref.setSummary(getString(R.string.summary_oauth_signin));
         }
         
         // WiFi Only  
-        cs = getText(R.string.menu_wifionly);  
+        cs = getText(R.string.pfkey_wifiony);  
         CheckBoxPreference cbp = (CheckBoxPreference)findPreference(cs);   
         // リスナーを設定する  
         cbp.setOnPreferenceChangeListener(onPreferenceChangeListener_checkwifionly);
@@ -158,25 +159,35 @@ public class ShuzoConfigActivity extends PreferenceActivity {
         }
         
         // 更新時間
-        cs = getText(R.string.menu_access_update);  
+        cs = getText(R.string.pfkey_access);  
         pref = (Preference)findPreference(cs);   
         // リスナーを設定する  
         pref.setOnPreferenceChangeListener(onPreferenceChangeListener_accessUpdate);
-        String title = pref.getTitle().toString();
-        String newTitle = String.format("%s %s", title,getString(R.string.defaultEntreisAccessUpdate));
-        pref.setTitle(newTitle);
+        String summary = SummaryfindById(R.array.entries_access_time,
+        		R.array.entryvalue_access_update,mConfig.accessUpdateTime);
+		String newTitle = String.format("%s %s", getString(R.string.menu_access_update),summary);
+		pref.setTitle(newTitle);
+		if(mConfig.accessUpdateTime < 0){
+			pref.setSummary(getString(R.string.summary_update_type_user));
+		}
         
         // 表示間隔
-        cs = getText(R.string.menu_widget_update);  
+        cs = getText(R.string.pfkey_widget);  
         pref = (Preference)findPreference(cs);   
         // リスナーを設定する  
         pref.setOnPreferenceChangeListener(onPreferenceChangeListener_widgetUpdate);
-        title = pref.getTitle().toString();
-        newTitle = String.format("%s %s", title,getString(R.string.defaulEntreisWidgetUpdate));
+        summary = SummaryfindById(R.array.entries_widget_update,
+        		R.array.entryvalue_widget_update,mConfig.widgetUpdateTime);
+        if(summary == null){
+        	summary = getString(R.string.defaulEntreisWidgetUpdate);
+        	mConfig.widgetUpdateTime = Long.parseLong(getString(R.string.defaultValueWidgetUpdate));
+        }
+        newTitle = String.format("%s %s", getString(R.string.menu_widget_update),summary);
         pref.setTitle(newTitle);
+        pref.setDefaultValue(mConfig.widgetUpdateTime);
         
         // about
-        cs = getText(R.string.menu_about);  
+        cs = getText(R.string.pfkey_about);  
         pref = (Preference)findPreference(cs);   
         // リスナーを設定する  
         pref.setOnPreferenceClickListener(onPreferenceClickListener_about);
@@ -188,7 +199,13 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 		// TODO 自動生成されたメソッド・スタブ
 		super.onNewIntent(intent);
 		
-		String action = intent.getAction();
+		String action;
+		if(intent == null){
+			action = "";
+		}
+		else {
+			action = intent.getAction();
+		}
 		if(action.equals("android.intent.action.VIEW")){
 			Uri uri = intent.getData();
 			if(uri != null && uri.toString().startsWith(CALLBACK_URL)){
@@ -200,14 +217,13 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 				// トークンをConfigDataに入れる
 				mConfig.setAccessToken(accessToken.getToken(),accessToken.getTokenSecret());
 				
-				// ここでAccessTokenを保存しておけば次回から認証不要となる
-				mConfig.CommitConfig();
+				// インテントを投げる
+				sendIntentOauth();
 				
-				sendIntentConfig(ConfigData.Order.ORDER_TOKEN);
-				
-				CharSequence cs = getText(R.string.menu_oauth);  
+				CharSequence cs = getText(R.string.pfkey_signin);  
 		        Preference pref = (Preference)findPreference(cs);
 		        pref.setTitle(mConfig.screenName);
+		        pref.setSummary(getString(R.string.summary_oauth_signin));
 		        
 				Log.d(TAG,"screenName "+ mConfig.screenName);
 				
@@ -282,7 +298,17 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 	    		break;
 	    	}
 	    }
+	    if(i >= entryValue.length){
+	    	return null;
+	    }
 	    return (String)entries[i];
+	}
+	private void sendIntentOauth(){
+		Intent i = new Intent(TwitterAccessService.INTENT_OAUTH);
+		i.putExtra(ConfigData.PF_ACCESSTOKEN, mConfig.getAccessToken());
+		i.putExtra(ConfigData.PF_ACCESSTOKENSECRET, mConfig.getAccessTokenSecret());
+		mConfig.CommitConfig();
+		startService(i);
 	}
 	private void sendIntentConfig(int order){
 		Intent i = new Intent(TwitterAccessService.INTEINT_UPDATE_CONFIG);
@@ -293,6 +319,7 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 		i.putExtra(ConfigData.PF_WIFIONLY, mConfig.wifionly);
 		i.putExtra(ConfigData.PF_WIDGET_UPDATE, mConfig.widgetUpdateTime);
 		i.putExtra(ConfigData.PF_ACCESS_UPDATE, mConfig.accessUpdateTime);
+		mConfig.CommitConfig();
 		startService(i);
 	}
 	private void widgetSetResult(int result){

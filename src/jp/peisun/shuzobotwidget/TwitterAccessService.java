@@ -18,6 +18,7 @@ import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -42,12 +43,14 @@ import twitter4j.IDs;
 public class TwitterAccessService extends Service {
 	private final static String TAG = "TwitterAccessService";
 	//使ってない
-	public final static String INTENT_OAUTH = "jp.peisun.shuzobotwidget.oauth";
+	
 	public final static String INTENT_IS_SHUZO = "jp.peisun.shuzobotwidget.is_shuzo";
 	public final static String INTENT_FOLLOW_SHUZO = "jp.peisun.shuzobotwidget.follow_shuzo";
 	//	public final static String INTENT_WAIT = "jp.peisun.shuzobotwidget.wait";
 	//	public final static String INTENT_READ_TWITTER = "jp.peisun.shuzobotwidget.readtwitter";
+	public final static String INTENT_OAUTH = "jp.peisun.shuzobotwidget.oauth";
 	public final static String INTENT_READ_SHUZO     = "jp.peisun.shuzobotwidget.readshuzo";
+	public final static String INTENT_CLICK_GET      = "jp.peisun.shuzobotwidget.clickget";
 	public final static String INTEINT_UPDATE_CONFIG = "jp.peisun.shuzobotwidget.updateconfig";
 	public final static String INTENT_STOP           = "jp.peisun.shuzobotwidget.stop";
 	public final static String INTENT_START          = "jp.peisun.shuzobotwidget.start";
@@ -65,7 +68,7 @@ public class TwitterAccessService extends Service {
 	public final static String WIDGET_ID ="WidgetID";
 
 	public static ConfigData mConfig = null;
-	
+
 	private int mWidgetId;
 
 	// ネットワークについて
@@ -87,6 +90,7 @@ public class TwitterAccessService extends Service {
 	private User mUser = null;
 	private ResponseList<Status> mResponselist;
 	private int mListNum = 0;
+	private TimelineTask mTimelineTask = null;
 
 	// ハンドラ
 	private final int MSG_WIDGET_UPDATE = 1;
@@ -111,110 +115,124 @@ public class TwitterAccessService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		// TODO 自動生成されたメソッド・スタブ
-		
 
+		String action;
+		if (intent != null) {
+			action = intent.getAction();
+
+		} else {
+			action = "";
+		}
 		// インテントの処理
-		if(intent != null){
-			String action = intent.getAction();
-			if(action.equals(INTENT_START)){
-				mWidgetId = intent.getIntExtra(WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-				setClickPendingIntent(mWidgetId);
-				// ConfigDataの読み込み
-				
-				mConfig = new ConfigData(getApplicationContext());
-				mConfig.getSharedPreferences();
-				if(mConfig.isAccessToken() == true && mTwitter == null){
-					mTwitter = getTwitterInstance();
-					if(mTwitter == null){
-						updateStatusText(getString(R.string.signin_message));
-						Log.d(TAG,INTENT_START+ "mTwitter null");
-						return START_NOT_STICKY;
-					}
-					else {
-						getShuzoBot();
-					}
-				}
-				else {
+		if(action.equals(INTENT_START)){
+			mWidgetId = intent.getIntExtra(WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+			setClickPendingIntent(mWidgetId);
+			
+			if(mConfig.isAccessToken() == true && mTwitter == null){
+				mTwitter = getTwitterInstance();
+				if(mTwitter == null){
 					updateStatusText(getString(R.string.signin_message));
-					Log.d(TAG,INTENT_START+ "mConfig null");
+					stopSelf();
+					Log.d(TAG,INTENT_START+ "mTwitter null");
 					return START_NOT_STICKY;
 				}
-				
-				
-				//setClickPendingIntent();
-			}
-			else if(action.equals(INTENT_CLICK)){
-				Intent i = new Intent(this,ShuzoConfigActivity.class);
-				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-				startActivity(i);
-			}
-			else if(action.equals(INTENT_STOP)){
-				if(mTwitter != null){
-					mTwitter.shutdown();
-					mTwitter = null;
-				}
-				stopSelf();
-				return START_NOT_STICKY;
-			}
-			else if(action.equals(INTEINT_UPDATE_CONFIG)){
-				if(mConfig == null){
-					mConfig = new ConfigData(getApplicationContext());
-					mConfig.getSharedPreferences();
-				}
-				int order = getIntentExtra(intent);
-				orderAction(order);
-
-			}
-			else if(mConfig != null && mConfig.isAccessToken() == true){
-				
-				if(action.equals(INTENT_READ_SHUZO)){
+				else {
+					Log.d(TAG,INTENT_START+" getShuzoBot");
 					getShuzoBot();
-				}
-				// Wifiの状態が変化したとき
-				else if(action.equals(INTENT_WIFI_CHANGED)){
-					int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
-					// WIFI接続されたら、Timelineを取得
-					if(state == WifiManager.WIFI_STATE_ENABLED){
-						Log.d(TAG,"WifiManager.WIFI_STATE_CHANGED_ACTION: WIFI_STATE_ENABLED");
-						// どうも、WIFI接続されても、ちょっと待たないといけないっぽい
-						mHandler.waitGetTimeline();
-
-
-					}
-					else if(mConfig.wifionly == true && state != WifiManager.WIFI_STATE_ENABLED){
-						Log.d(TAG,"WifiManager.WIFI_STATE_CHANGED_ACTION: OTHER");
-
-						// WIFI接続時のみの取得で、WiFi接続が切られたら定期取得を止める
-						cancelGetTimelineUser();
-					}
-					else {
-						Log.d(TAG,"WifiManager.WIFI_STATE_CHANGED_ACTION: no connect");
-					}
-
-				}
-				else if(action.equals(INTENT_SCREEN_CHANGED)){
-					boolean screen = intent.getBooleanExtra(SCREEN, false);
-					Log.d(TAG,"INTENT_SCREEN_CHANGED "+screen);
-					if(screen == false){
-						mHandler.scrrenOff();
-					}
-				}
-				else if(action.equals(INTENT_WIDGET_UPDATE)){
-					if(mResponselist != null){
-						actionWidgetUpdate();
-					}
-					else {
-						Intent i = new Intent(INTENT_READ_SHUZO);
-						this.startService(i);
-					}
 				}
 			}
 			else {
-				Log.d(TAG,INTENT_START+ "not signin ?");
+				updateStatusText(getString(R.string.signin_message));
+				stopSelf();
+				Log.d(TAG,INTENT_START+ "mConfig null");
 				return START_NOT_STICKY;
 			}
-			
 		}
+		else if(action.equals(INTENT_OAUTH)){
+			String token = intent.getStringExtra(ConfigData.PF_ACCESSTOKEN);
+			String secret = intent.getStringExtra(ConfigData.PF_ACCESSTOKENSECRET);
+			mConfig.setAccessToken(token, secret);
+			mConfig.CommitConfig();
+			getShuzoBot();
+		}
+		else if(action.equals(INTENT_CLICK)){
+			Intent i = new Intent(this,ShuzoConfigActivity.class);
+			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(i);
+		}
+		else if(action.equals(INTENT_STOP)){
+			if(mTwitter != null){
+				mTwitter.shutdown();
+				mTwitter = null;
+			}
+			stopSelf();
+			return START_NOT_STICKY;
+		}
+		else if(action.equals(INTEINT_UPDATE_CONFIG)){
+			if(mConfig == null){
+				mConfig = new ConfigData();
+				mConfig.getSharedPreferences(getApplicationContext());
+			}
+			int order = getIntentExtra(intent);
+			orderAction(order);
+
+		}
+		else if(mConfig != null && mConfig.isAccessToken() == true){
+			if(mTwitter == null){
+				mTwitter = getTwitterInstance();
+			}
+			if(action.equals(INTENT_READ_SHUZO)){
+				getShuzoBot();
+			}
+			else if(action.equals(INTENT_CLICK_GET)){
+				updateStatusText(getString(R.string.gettimeline_message));
+				getShuzoBot();
+			}
+			// Wifiの状態が変化したとき
+			else if(action.equals(INTENT_WIFI_CHANGED)){
+				int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_UNKNOWN);
+				// WIFI接続されたら、Timelineを取得
+				if(state == WifiManager.WIFI_STATE_ENABLED){
+					Log.d(TAG,"WifiManager.WIFI_STATE_CHANGED_ACTION: WIFI_STATE_ENABLED");
+					// どうも、WIFI接続されても、ちょっと待たないといけないっぽい
+					mHandler.waitGetTimeline();
+
+
+				}
+				else if(mConfig.wifionly == true && state != WifiManager.WIFI_STATE_ENABLED){
+					Log.d(TAG,"WifiManager.WIFI_STATE_CHANGED_ACTION: OTHER");
+
+					// WIFI接続時のみの取得で、WiFi接続が切られたら定期取得を止める
+					cancelGetTimelineUser();
+				}
+				else {
+					Log.d(TAG,"WifiManager.WIFI_STATE_CHANGED_ACTION: no connect");
+				}
+
+			}
+			else if(action.equals(INTENT_SCREEN_CHANGED)){
+				boolean screen = intent.getBooleanExtra(SCREEN, false);
+				Log.d(TAG,"INTENT_SCREEN_CHANGED "+screen);
+				if(screen == false){
+					mHandler.scrrenOff();
+				}
+			}
+			else if(action.equals(INTENT_WIDGET_UPDATE)){
+				if(mResponselist != null){
+					actionWidgetUpdate();
+				}
+				else {
+					Intent i = new Intent(INTENT_READ_SHUZO);
+					this.startService(i);
+				}
+			}
+		}
+		else {
+			Log.d(TAG,INTENT_START+ " not signin ?");
+			return START_NOT_STICKY;
+		}
+
+
 
 		return START_STICKY;
 		//return super.onStartCommand(intent, flags, startId);
@@ -225,21 +243,12 @@ public class TwitterAccessService extends Service {
 		mConfig.accessUpdateTime = intent.getLongExtra(ConfigData.PF_ACCESS_UPDATE, mConfig.accessUpdateTime);
 		mConfig.widgetUpdateTime = intent.getLongExtra(ConfigData.PF_WIDGET_UPDATE, mConfig.widgetUpdateTime);
 		mConfig.screenName = intent.getStringExtra(ConfigData.PF_SCREEN_NAME);
-		String token = intent.getStringExtra(ConfigData.PF_ACCESSTOKEN);
-		String secret = intent.getStringExtra(ConfigData.PF_ACCESSTOKENSECRET);
-		mConfig.setAccessToken(token, secret);
 		mConfig.CommitConfig();
 		int order = intent.getIntExtra(CONFIG_ORDER, -1);
 		return order;
 	}
 	private void orderAction(int order){
 		switch(order){
-		case ConfigData.Order.ORDER_TOKEN:
-			mTwitter = getTwitterInstance();
-			if(mTwitter == null){
-				updateStatusText(getString(R.string.signin_message));
-			}
-			break;
 		case ConfigData.Order.ORDER_WIFI:
 			getShuzoBot();
 			break;
@@ -265,7 +274,7 @@ public class TwitterAccessService extends Service {
 			String status_text = mResponselist.get(mListNum).getText();
 			updateStatusText(splitStatusText(status_text));
 			mListNum++;
-			if(mListNum > mResponselist.size()){
+			if(mListNum >= mResponselist.size()){
 				mListNum = 0;
 			}	
 			mHandler.waitWidgetUpdate(mConfig.widgetUpdateTime);
@@ -289,31 +298,17 @@ public class TwitterAccessService extends Service {
 		}
 	}
 	private void actionGetTimelineUser(){
-		ResponseList<Status> list = null;
-		list = getTimelineUser(mShuzoBot);
-		if(list != null && list.size() != 0){
-			// Timelineが取得できたら、新しいものと入れ替え
-			mResponselist = list;
-			actionWidgetUpdate();
-			waitRequest(mConfig.accessUpdateTime);
+		if(mTimelineTask != null){
+			if(mTimelineTask.getStatus() != AsyncTask.Status.FINISHED){
+				return;
+			}
+			else {
+				mTimelineTask = null;
+			}
 		}
-		// Timelineが取得できなくても、すでに取得できているものがあれば
-		// それを表示
-		else if(list == null && mResponselist != null){
-			actionWidgetUpdate();
-			waitRequest(mConfig.accessUpdateTime);
-		}
-		// リトライをかける
-		else if(retry < RETRY_MAX){
-			retry++;
-			updateStatusText(getString(R.string.errorGetTimeline));
-			mHandler.waitGetTimeline();
-		}
-		// まったくもって取得できなかったら、エラーらしきものを表示
-		else {
-			updateStatusText(getString(R.string.errorGetTimeline));
-		}
-
+		mTimelineTask = new TimelineTask();
+		mTimelineTask.setUser(mShuzoBot);
+		mTimelineTask.execute(mTwitter);
 	}
 	public static String[] readAssetFile(Context context,String filename){
 		String[] split = null;
@@ -439,25 +434,7 @@ public class TwitterAccessService extends Service {
 		}
 		return success;
 	}
-	private ResponseList<Status> getTimelineUser(String name){
-		ResponseList<Status> list = null;
-		try {
-			Paging paging = new Paging(PAGING_SIZE);
-			Log.d(TAG,"getUserTimline...");
 
-			list = mTwitter.getUserTimeline(name,paging);
-
-			Log.d(TAG,"getUserTimeline " + name + ":"+list.size());
-		}
-		catch(TwitterException te){
-			te.printStackTrace();
-
-		}
-		if(list != null){
-			retry = 0;
-		}
-		return list;
-	}
 
 	private String splitStatusText(String status_text){
 		int i;
@@ -556,6 +533,10 @@ public class TwitterAccessService extends Service {
 	@Override
 	public void onCreate() {
 		// TODO 自動生成されたメソッド・スタブ
+		// ConfigDataの読み込み
+		mConfig = new ConfigData();
+		mConfig.getSharedPreferences(getApplicationContext());
+		
 		// Intent.ACTION_SCrEEN_ON/OFFはManifestに書いておいてもダメらしい
 		IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_ON);
 		getApplicationContext().registerReceiver(new BroadcastReceiver() {
@@ -579,18 +560,103 @@ public class TwitterAccessService extends Service {
 	private void setClickPendingIntent(int widgetId){
 		if(widgetId != AppWidgetManager.INVALID_APPWIDGET_ID){
 			Log.d(TAG,"setClickPendingIntent wWidgetId " +widgetId);
-		RemoteViews views = new RemoteViews(getPackageName(),R.layout.layoutwidget);
-		Intent clickIntent = new Intent();
-		clickIntent.setAction(INTENT_CLICK);
-		PendingIntent pendingIntent = PendingIntent.getService(this, 0, clickIntent, 0);
-		
-		views.setOnClickPendingIntent(R.id.linearLayout1, pendingIntent);
-		AppWidgetManager manager = AppWidgetManager.getInstance(this);
-		ComponentName widget = new ComponentName(this,ShuzobotAppWidgetProvider.class);
-		manager.updateAppWidget(widget, views);
-		//		views.setOnClickPendingIntent(R.id.textView1, pendingIntent);
-		//		views.setOnClickPendingIntent(R.id.relativeLayout1, pendingIntent);
+			RemoteViews views = new RemoteViews(getPackageName(),R.layout.layoutwidget);
+			Intent configIntent = new Intent(INTENT_CLICK);
+			Intent updateIntent = new Intent(INTENT_CLICK_GET);
+			PendingIntent pendingConfigIntent = PendingIntent.getService(this, 0, configIntent, 0);
+			PendingIntent pendingUpdateIntent = PendingIntent.getService(this, 0, updateIntent, 0);
+			views.setOnClickPendingIntent(R.id.imageButton1, pendingConfigIntent);
+			views.setOnClickPendingIntent(R.id.relativeLayout1, pendingUpdateIntent);
+			AppWidgetManager manager = AppWidgetManager.getInstance(this);
+
+			ComponentName widget = new ComponentName(this,ShuzobotAppWidgetProvider.class);
+			//			manager.setAppWidgetId(widgetId);
+			manager.updateAppWidget(widget, views);
+			//		views.setOnClickPendingIntent(R.id.textView1, pendingIntent);
+			//		views.setOnClickPendingIntent(R.id.relativeLayout1, pendingIntent);
 		}
+	}
+	public class TimelineTask extends AsyncTask<Twitter,Void,ResponseList<twitter4j.Status>>{
+		private Twitter mTaskTwitter= null;
+		private String user = null;;
+		public void setUser(String name){
+			user = name;
+		}
+		private ResponseList<twitter4j.Status> getTimeline(String user){
+			ResponseList<twitter4j.Status> list = null;
+			try {
+				Paging paging = new Paging(PAGING_SIZE);
+				Log.d(TAG,"getUserTimline...");
+
+				list = mTaskTwitter.getUserTimeline(user,paging);
+
+				Log.d(TAG,"getUserTimeline " + user + ":"+list.size());
+
+			}
+			catch(TwitterException te){
+				te.printStackTrace();
+			}
+			return list;
+		}
+		@Override
+		protected ResponseList<twitter4j.Status> doInBackground(Twitter... arg0) {
+			// TODO 自動生成されたメソッド・スタブ
+			mTaskTwitter = arg0[0];
+			if(user != null && mTaskTwitter != null){
+				return getTimeline(mShuzoBot);
+			}
+			return null;
+		}
+		
+		@Override
+		protected void onCancelled() {
+			// TODO 自動生成されたメソッド・スタブ
+			super.onCancelled();
+		}
+
+		@Override
+		protected void onPostExecute(ResponseList<twitter4j.Status> result) {
+			// TODO 自動生成されたメソッド・スタブ
+			super.onPostExecute(result);
+			if(result != null && result.size() != 0){
+				// Timelineが取得できたら、新しいものと入れ替え
+				mResponselist = result;
+				retry = 0;
+				actionWidgetUpdate();
+				waitRequest(mConfig.accessUpdateTime);
+			}
+			// Timelineが取得できなくても、すでに取得できているものがあれば
+			// それを表示
+			else if(result == null && mResponselist != null){
+				actionWidgetUpdate();
+				waitRequest(mConfig.accessUpdateTime);
+			}
+			// リトライをかける
+			else if(retry < RETRY_MAX){
+				retry++;
+				updateStatusText(getString(R.string.errorGetTimeline));
+				mHandler.waitGetTimeline();
+			}
+			// まったくもって取得できなかったら、エラーらしきものを表示
+			else {
+				updateStatusText(getString(R.string.errorGetTimeline));
+				retry = 0;
+			}
+			
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO 自動生成されたメソッド・スタブ
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onProgressUpdate(Void... values) {
+			// TODO 自動生成されたメソッド・スタブ
+			super.onProgressUpdate(values);
+		}
+
 	}
 
 }
