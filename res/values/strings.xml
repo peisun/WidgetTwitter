@@ -32,7 +32,7 @@
 	<string name="menu_wifionly">WiFi接続時のみ更新</string>
 	<string name="menu_update_typte">取得方法</string>
 	<string name="menu_access_update">更新間隔</string>
-	<string name="menu_widget_update">ウィジットの更新時間</string>
+	<string name="menu_widget_update">ウィジットの更新間隔</string>
 	<string name="menu_about">このアプリケーションについて</string>
 	
 	<!-- Summary -->

@@ -576,7 +576,8 @@ public class TwitterAccessService extends Service {
 
 			ComponentName widget = new ComponentName(this,ShuzobotAppWidgetProvider.class);
 			//			manager.setAppWidgetId(widgetId);
-			manager.updateAppWidget(widget, views);
+			manager.updateAppWidget(widgetId, views);
+			//manager.updateAppWidget(widget, views);
 			//		views.setOnClickPendingIntent(R.id.textView1, pendingIntent);
 			//		views.setOnClickPendingIntent(R.id.relativeLayout1, pendingIntent);
 		}
