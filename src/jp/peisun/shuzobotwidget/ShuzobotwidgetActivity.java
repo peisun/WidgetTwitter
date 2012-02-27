@@ -47,8 +47,7 @@ public class ShuzobotwidgetActivity extends Activity implements OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        mBtnSignIn = (Button)findViewById(R.id.button_signin);
-        mBtnSignIn.setOnClickListener(this);
+        
         mBtnConfig = (Button)findViewById(R.id.button_config);
         mBtnConfig.setOnClickListener(this);
         mWebView = (WebView)findViewById(R.id.webView);
