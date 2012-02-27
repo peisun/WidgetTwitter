@@ -51,7 +51,7 @@
 	<string name="defaultValuewifionly">true</string>
 	<string name="defaultValueUpdateType">true</string>
 	<string name="defaultEntreisAccessUpdate">30分</string>
-	<string name="defaultValueAccessUpdate">900000</string>
+	<string name="defaultValueAccessUpdate">1800000</string>
 	<string name="defaulEntreisWidgetUpdate">30分</string>
 	<string name="defaultValueWidgetUpdate">1800000</string>
 	

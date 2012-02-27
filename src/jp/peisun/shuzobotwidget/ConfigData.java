@@ -49,7 +49,7 @@ public class ConfigData {
 		String value = mContext.getString(R.string.defaultValueAccessUpdate);
 		accessUpdateTime = mSharedPreferencs.getLong(PF_ACCESS_UPDATE, Long.parseLong(value));
 		value = mContext.getString(R.string.defaultValueWidgetUpdate);
-		widgetUpdateTime = mSharedPreferencs.getLong(PF_ACCESS_UPDATE, Long.parseLong(value));
+		widgetUpdateTime = mSharedPreferencs.getLong(PF_WIDGET_UPDATE, Long.parseLong(value));
 		screenName = mSharedPreferencs.getString(PF_SCREEN_NAME, "");
 		accessToken = mSharedPreferencs.getString(PF_ACCESSTOKEN, "");
 		accessTokenSecret = mSharedPreferencs.getString(PF_ACCESSTOKENSECRET, "");

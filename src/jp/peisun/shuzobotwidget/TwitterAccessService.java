@@ -185,7 +185,7 @@ public class TwitterAccessService extends Service {
 				getShuzoBot();
 			}
 			else if(action.equals(INTENT_CLICK_GET)){
-				updateStatusText(getString(R.string.gettimeline_message));
+				
 				getShuzoBot();
 			}
 			// Wifiの状態が変化したとき
@@ -277,11 +277,12 @@ public class TwitterAccessService extends Service {
 			if(mListNum >= mResponselist.size()){
 				mListNum = 0;
 			}	
-			mHandler.waitWidgetUpdate(mConfig.widgetUpdateTime);
+			
 		}
 		else {
 			updateStatusText(splitStatusText(this.getString(R.string.init_message)));
 		}
+		mHandler.waitWidgetUpdate(mConfig.widgetUpdateTime);
 	}
 	private void getShuzoBot(){
 		int connectType = ConectivityStatus();
@@ -295,6 +296,8 @@ public class TwitterAccessService extends Service {
 		}
 		else {
 			// たぶんnetworkに接続されていない
+			updateStatusText(getString(R.string.errorGetTimeline));
+			mHandler.waitWidgetUpdate(mConfig.widgetUpdateTime);
 		}
 	}
 	private void actionGetTimelineUser(){
@@ -306,6 +309,8 @@ public class TwitterAccessService extends Service {
 				mTimelineTask = null;
 			}
 		}
+		updateStatusText(getString(R.string.gettimeline_message));
+		mHandler.waitWidgetUpdate(mConfig.widgetUpdateTime);
 		mTimelineTask = new TimelineTask();
 		mTimelineTask.setUser(mShuzoBot);
 		mTimelineTask.execute(mTwitter);

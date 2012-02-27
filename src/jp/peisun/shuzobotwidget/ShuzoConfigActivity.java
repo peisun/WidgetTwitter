@@ -167,15 +167,15 @@ public class ShuzoConfigActivity extends PreferenceActivity {
         		R.array.entryvalue_access_update,mConfig.accessUpdateTime);
 		String newTitle = String.format("%s %s", getString(R.string.menu_access_update),summary);
 		pref.setTitle(newTitle);
+		pref.setDefaultValue((Object)new Long(mConfig.accessUpdateTime).toString());
 		if(mConfig.accessUpdateTime < 0){
 			pref.setSummary(getString(R.string.summary_update_type_user));
 		}
+		Log.d(TAG,"access update "+ mConfig.accessUpdateTime + " summary " + summary);
         
         // 表示間隔
         cs = getText(R.string.pfkey_widget);  
         pref = (Preference)findPreference(cs);   
-        // リスナーを設定する  
-        pref.setOnPreferenceChangeListener(onPreferenceChangeListener_widgetUpdate);
         summary = SummaryfindById(R.array.entries_widget_update,
         		R.array.entryvalue_widget_update,mConfig.widgetUpdateTime);
         if(summary == null){
@@ -184,7 +184,10 @@ public class ShuzoConfigActivity extends PreferenceActivity {
         }
         newTitle = String.format("%s %s", getString(R.string.menu_widget_update),summary);
         pref.setTitle(newTitle);
-        pref.setDefaultValue(mConfig.widgetUpdateTime);
+        pref.setDefaultValue((Object)String.format("%d", mConfig.widgetUpdateTime));
+        // リスナーを最後に設定して反映される  
+        pref.setOnPreferenceChangeListener(onPreferenceChangeListener_widgetUpdate);
+        Log.d(TAG,"widget update "+ mConfig.widgetUpdateTime + " summary " + summary);
         
         // about
         cs = getText(R.string.pfkey_about);  
