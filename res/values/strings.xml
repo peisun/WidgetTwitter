@@ -2,7 +2,7 @@
 <resources>
 
     <string name="hello">Hello World, ShuzobotwidgetActivity!</string>
-    <string name="app_name">Shuzobotwidget</string>
+    <string name="app_name">修造が言うに</string>
     <string name="buttn_config">設定</string>
     <string name="consentfollow_message">修造botをフォローします。</string>
     <string name="createdFriendship_toast"> さんをフォローしました。</string>
