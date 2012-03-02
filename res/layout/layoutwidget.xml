@@ -13,48 +13,82 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:background="@drawable/icon01"/>
+            android:background="@drawable/shuzoboticon"/>
             -->
 
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:src="@drawable/shuzo48"
+            android:contentDescription="@string/contentDescription" 
+            />
+<!--  
         <ImageButton
             android:id="@+id/imageButton1"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="74dp"
+            android:layout_height="74dp"
+            android:layout_weight="0"
             android:contentDescription="@string/contentDescription"
-            android:src="@drawable/icon01" 
-            android:background="#00000000" android:clickable="true" android:maxHeight="72dp" android:maxWidth="72dp" android:minHeight="72dp" android:minWidth="72dp"/>
-
+            android:src="@drawable/shuzoboticon" 
+            />
+-->
 	<RelativeLayout
 	    android:id="@+id/relativeLayout1"
-	    android:layout_width="294dp"
+	    android:layout_width="wrap_content"
 	    android:layout_height="72dp"
 	    android:layout_weight="1" >
 
-		<ImageView
-		    android:id="@+id/imageView2"
-		    android:layout_width="294dp"
-		    android:layout_height="72dp"
-		    android:src="@drawable/fukidasi002"
-		    android:contentDescription="@string/contentDescription" />
+		<LinearLayout
+		    android:id="@+id/linearLayout2"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		     >
+
+			<ImageView
+			    android:id="@+id/imageView_left"
+			    android:layout_width="wrap_content"
+			    android:layout_height="72dp"
+			    android:layout_weight="1"
+			    android:scaleType="fitXY"
+			    android:contentDescription="@string/contentDescription"
+			    android:src="@drawable/fukidasi72_left" />
+
+			<ImageView
+			    android:id="@+id/imageView_center"
+			    android:layout_width="match_parent"
+			    android:layout_height="72dp"
+			    android:layout_weight="1"
+			    android:contentDescription="@string/contentDescription"
+			    android:fitsSystemWindows="true"
+			    android:scaleType="fitXY"
+			    android:src="@drawable/fukidasi72_center" />
+			<ImageView
+			    android:id="@+id/imageView_right"
+			    android:layout_width="wrap_content"
+			    android:layout_height="72dp"
+			    android:layout_weight="1"
+			    android:layout_gravity="left"
+			    android:scaleType="fitXY"
+			    android:contentDescription="@string/contentDescription"
+			    android:src="@drawable/fukidasi72_right" />
+		</LinearLayout>
 
 		<TextView
 		    android:id="@+id/textView1"
-		    android:layout_width="294dp"
-		    android:layout_height="72dp"
-		    android:paddingTop="3dp"
-		    android:paddingLeft="22dp"
-		    android:paddingRight="14dp"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
 		    android:gravity="left"
-		    android:maxHeight="72dp"
-		    android:maxWidth="294dp"
 		    android:text="@string/init_message"
 		    android:textColor="#000000"
-		    android:textSize="12dp"
-		    android:textStyle="bold" />
+		    android:textSize="9dp"
+		    android:textStyle="bold" 
+		    android:layout_marginLeft="5dp" 
+		    android:layout_marginRight="2dp"
+		    android:layout_marginTop="5dp" 
+		    android:layout_marginBottom="5dp"/>
 
 	</RelativeLayout>
-
-        
 
     </LinearLayout>

@@ -4,7 +4,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Random;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -67,9 +69,9 @@ public class TwitterAccessService extends Service {
 	public final static String SCREEN = "screen";
 	public final static String WIDGET_ID ="WidgetID";
 
-	public static ConfigData mConfig = null;
+	public static volatile ConfigData mConfig = null;
 
-	private int mWidgetId;
+	private ArrayList<Integer> mWidgetIdList = new ArrayList<Integer>();
 
 	// ネットワークについて
 	private final static int DISCONNECT = -1; // >=0はConnectivityManager.TYPE_xxxにあるから
@@ -86,8 +88,6 @@ public class TwitterAccessService extends Service {
 
 	// 修造bot
 	private String mShuzoBot = "shuzo_matsuoka";
-	private long mShuzoBotId;
-	private User mUser = null;
 	private ResponseList<Status> mResponselist;
 	private int mListNum = 0;
 	private TimelineTask mTimelineTask = null;
@@ -98,7 +98,8 @@ public class TwitterAccessService extends Service {
 	private final int MSG_SCREEN_OFF = 3;
 	private final long WIFI_ENABLED_WAIT = 2000;
 	private WaitHandler mHandler = new WaitHandler();
-
+	
+	private String moji140 = "あ";
 
 	@Override
 	public IBinder onBind(Intent arg0) {
@@ -125,13 +126,14 @@ public class TwitterAccessService extends Service {
 		}
 		// インテントの処理
 		if(action.equals(INTENT_START)){
-			mWidgetId = intent.getIntExtra(WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-			setClickPendingIntent(mWidgetId);
+			int widgetId = intent.getIntExtra(WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+			mWidgetIdList.add(new Integer(widgetId));
+			setClickPendingIntent(widgetId);
 			
 			if(mConfig.isAccessToken() == true && mTwitter == null){
 				mTwitter = getTwitterInstance();
 				if(mTwitter == null){
-					updateStatusText(getString(R.string.signin_message));
+					updateStatusText(getString(R.string.twitter_null_message));
 					stopSelf();
 					Log.d(TAG,INTENT_START+ "mTwitter null");
 					return START_NOT_STICKY;
@@ -262,6 +264,7 @@ public class TwitterAccessService extends Service {
 			}
 			break;
 		case ConfigData.Order.ORDER_WIDGET_UPDATE:
+			Log.d(TAG,"ORDER_WIDGET_UPDATE " + mConfig.widgetUpdateTime);
 			mHandler.waitWidgetUpdate(mConfig.widgetUpdateTime);
 			break;
 		default:
@@ -310,6 +313,7 @@ public class TwitterAccessService extends Service {
 			}
 		}
 		updateStatusText(getString(R.string.gettimeline_message));
+		//updateStatusText(moji140);
 		mHandler.waitWidgetUpdate(mConfig.widgetUpdateTime);
 		mTimelineTask = new TimelineTask();
 		mTimelineTask.setUser(mShuzoBot);
@@ -372,15 +376,19 @@ public class TwitterAccessService extends Service {
 
 	private void waitRequest(long time){
 
-		Log.d(TAG,"Request wait set");
-		long current = SystemClock.elapsedRealtime();
-		current += time;
-		Intent intent = new Intent(INTENT_READ_SHUZO);
-		PendingIntent readTwitterSender = PendingIntent.getService(this,0, intent, 0);
-		AlarmManager mAmWaitRequest =(AlarmManager)getSystemService(ALARM_SERVICE);
-		mAmWaitRequest.cancel(readTwitterSender);
-		mAmWaitRequest.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,current,readTwitterSender);
-
+		Log.d(TAG,"Request wait set "+ time);
+		if(time < 0){
+			cancelGetTimelineUser();
+		}
+		else {
+			long current = SystemClock.elapsedRealtime();
+			current += time;
+			Intent intent = new Intent(INTENT_READ_SHUZO);
+			PendingIntent readTwitterSender = PendingIntent.getService(this,0, intent, 0);
+			AlarmManager mAmWaitRequest =(AlarmManager)getSystemService(ALARM_SERVICE);
+			mAmWaitRequest.cancel(readTwitterSender);
+			mAmWaitRequest.set(AlarmManager.ELAPSED_REALTIME_WAKEUP,current,readTwitterSender);
+		}
 	}
 	private void cancelGetTimelineUser(){
 		Intent intent = new Intent(INTENT_READ_SHUZO);
@@ -392,57 +400,11 @@ public class TwitterAccessService extends Service {
 		// 第3引数は、表示期間（LENGTH_SHORT、または、LENGTH_LONG）
 		Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 	}
-	private boolean isFollowShuzo(){
-		IDs followListId = null;
-		boolean is = false;
-		ResponseList<User> followUser;
-		String name;
-		try {
-			followListId = mTwitter.getFriendsIDs(-1);
-
-			long[] ids = followListId.getIDs();
-
-			followUser = mTwitter.lookupUsers(ids);
-			for(int i=0;i<followUser.size();i++){
-				name = followUser.get(i).getScreenName();
-				Log.d(TAG,"name " + name + " id "+followUser.get(i).getId());
-				if(SHUZO.equals(name)){
-					mShuzoBotId = followUser.get(i).getId();
-					mShuzoBot = name;
-					is = true;
-					break;
-				}
-			}
-		}
-		catch (Exception e){
-
-		}
-		return is;
-	}
-	private boolean consetFriendship(String name){
-		boolean success = false;
-		try {
-			mUser = mTwitter.createFriendship(name);
-			String msg = String.format("%s%s", mUser.getName(),getString(R.string.createdFriendship_toast));
-			showToast(msg);
-			success = true;
-		}
-		catch (TwitterException te){
-			String msg = String.format("%s%n%s%s%n%s",
-					getString(R.string.sorry),
-					mUser.getName(),
-					getString(R.string.nocreatedFriendship_toast),
-					getString(R.string.pleaseanother_createFrinedship));
-			showToast(msg);
-			success = false;
-			te.getStatusCode();
-		}
-		return success;
-	}
 
 
 	private String splitStatusText(String status_text){
 		int i;
+		Log.d(TAG,"text: "+status_text);
 		final CharSequence atMark = (CharSequence)"@";
 		String[] split = status_text.split("[ \t]");
 		if(split[0].contains(atMark)){
@@ -463,15 +425,27 @@ public class TwitterAccessService extends Service {
 
 	}
 	private void updateStatusText(String text){
-
+		int index;
+		int appWidgetId;
+		Random r = new Random();
+		if(mWidgetIdList.size() > 1){
+			index = Math.abs(r.nextInt()%mWidgetIdList.size());
+			appWidgetId = mWidgetIdList.get(index).intValue();
+		}
+		else {
+			appWidgetId = mWidgetIdList.get(0).intValue();
+		}
+		Log.d(TAG,"appWidgetId = "+ appWidgetId);
 
 		RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.layoutwidget);
 		remoteViews.setTextViewText(R.id.textView1, text);
+		
 		// AppWidgetの画面更新
 		ComponentName thisWidget = new ComponentName(this, ShuzobotAppWidgetProvider.class);
 		AppWidgetManager manager = AppWidgetManager.getInstance(this);
 		manager.updateAppWidget(thisWidget, remoteViews);
-
+		//manager.updateAppWidget(appWidgetId, remoteViews);
+		
 	}
 	private int ConectivityStatus(){
 		int connectType;
@@ -560,6 +534,22 @@ public class TwitterAccessService extends Service {
 				mHandler.scrrenOff();
 			}
 		}, filter);
+		
+//		
+//		String[] a = {"あ","い","う","え","お"};
+//		int i=0;
+//		int j=0;
+//		for(i=0,j=0;i<140-2;i++){
+//			Log.d(TAG,"i="+i+" j="+j);
+//			moji140 += a[j];
+//			if(i != 0 && i%10 == 0){
+//				j++;
+//			}
+//			if(j >= 5){
+//				j=0;
+//			}
+//		}
+//		moji140+="は";
 		super.onCreate();
 	}
 	private void setClickPendingIntent(int widgetId){
@@ -570,11 +560,11 @@ public class TwitterAccessService extends Service {
 			Intent updateIntent = new Intent(INTENT_CLICK_GET);
 			PendingIntent pendingConfigIntent = PendingIntent.getService(this, 0, configIntent, 0);
 			PendingIntent pendingUpdateIntent = PendingIntent.getService(this, 0, updateIntent, 0);
-			views.setOnClickPendingIntent(R.id.imageButton1, pendingConfigIntent);
+			views.setOnClickPendingIntent(R.id.imageView1, pendingConfigIntent);
 			views.setOnClickPendingIntent(R.id.relativeLayout1, pendingUpdateIntent);
 			AppWidgetManager manager = AppWidgetManager.getInstance(this);
 
-			ComponentName widget = new ComponentName(this,ShuzobotAppWidgetProvider.class);
+			//ComponentName widget = new ComponentName(this,ShuzobotAppWidgetProvider.class);
 			//			manager.setAppWidgetId(widgetId);
 			manager.updateAppWidget(widgetId, views);
 			//manager.updateAppWidget(widget, views);

@@ -2,12 +2,9 @@
 <resources>
 
     <string name="hello">Hello World, ShuzobotwidgetActivity!</string>
-    <string name="app_name">修造が言うに</string>
+    <string name="app_name">1修造が言う</string>
     <string name="buttn_config">設定</string>
-    <string name="consentfollow_message">修造botをフォローします。</string>
-    <string name="createdFriendship_toast"> さんをフォローしました。</string>
-    <string name="sorry">ごめんなさい。</string>
-    <string name="nocreatedFriendship_toast">さんをフォローできませんでした。</string>
+    <string name="twitter_null_message">大丈夫だ！何度でもやり直すんだ！設定を見直すんだ！</string>
     <string name="pleaseanother_createFrinedship">ブラウザか別のアプリケーションnフォローしてください。</string>
 	<string name="init_message">あわてるな！人生待つことも大事だ！でも熱い心は忘れるな！</string>
 	<string name="signin_message">アイコンをタップしてサインインだ！</string>
@@ -26,25 +23,27 @@
 	<string name="pfkey_about">about</string>
 	<!-- Preference Category -->
 	<string name ="category_account">Twitterのアカウント</string>
-	<string name ="category_setting">設定</string>
+	<string name ="category_wifi">通信設定</string>
+	<string name ="category_access_time">Twitterアクセス間隔</string>
+	<string name ="category_widget_update">ウィジットへの表示間隔</string>
 	<string name ="category_else">その他</string>
 	<!-- Preference -->
 	<string name="menu_oauth">サインイン</string>
 	<string name="menu_wifionly">WiFi接続時のみ更新</string>
 	<string name="menu_update_typte">取得方法</string>
-	<string name="menu_access_update">更新間隔</string>
-	<string name="menu_widget_update">ウィジットの更新間隔</string>
+	<string name="menu_access_update">Twitterアクセス間隔時間</string>
+	<string name="menu_widget_update">ウィジット表示更新間隔</string>
 	<string name="menu_about">このアプリケーションについて</string>
 	
 	<!-- Summary -->
-	<string name="summary_widget_update">ウィジットの表示更新時間</string>
+	<string name="summary_widget_update">間隔で熱いメッセージを表示します。</string>
 	<string name="summary_oauth">サインインしてアプリケーションの認証してください。</string>
 	<string name="summary_oauth_signin">サインインしています。</string>
 	<string name="summary_wifionly_off">チェックするとWiFi接続時のみTwitterにアクセスします。</string>
 	<string name="summary_wifionly_on">チェックを外すといつでもTwitterにアクセスします。</string>
-	<string name="summary_update_type_user">自動では「修造Bot」を取得しません。ウィジットの吹き出しをタップしてください。</string>
-	<string name="summary_update_type_auto">チェックを外すと、自動ではTwitterにアクセスしません。</string>
-	<string name="summary_access_update">Twitterへのアクセス間隔の時間を設定します。</string>
+	<string name="summary_access_update">間隔でTwitterにアクセスします。</string>
+	<string name ="summary_update_type_user">吹き出しをタップするとTwitterへアクセスします。</string>
+	<string name="summary_update_type_auto">間隔でTwitterにアクセスします。</string>
 	<string name="summary_about">このアプリケーションについて、少しだけ説明します。</string>
 	<!-- デフォルト表示 -->
 

@@ -5,7 +5,7 @@
     <item>15分</item>
  <item>@string/defaultEntreisAccessUpdate</item>  
  <item>60分</item> 
- <item>吹き出しをタップして更新</item> 
+ <item>吹き出しをタップ</item> 
 </string-array>     
 <string-array name="entryvalue_access_update">  
     <item>600000</item>

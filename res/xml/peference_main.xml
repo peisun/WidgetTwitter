@@ -5,21 +5,24 @@
         android:title="@string/menu_oauth" 
         android:enabled="true" android:summary="@string/summary_oauth"/>
     </PreferenceCategory>
-    
-    
-     
-    <PreferenceCategory android:title="@string/category_setting">
+     <PreferenceCategory android:title="@string/category_wifi">
         <CheckBoxPreference android:title="@string/menu_wifionly" 
         android:summaryOn="@string/summary_wifionly_on" 
         android:summaryOff="@string/summary_wifionly_off" 
         android:key="@string/pfkey_wifiony" android:enabled="true"/>
-    <ListPreference android:title="@string/menu_access_update" 
+    
+    
+    
+        <ListPreference android:title="@string/menu_access_update" 
         android:summary="@string/summary_access_update" 
         android:entries="@array/entries_access_time" 
         android:entryValues="@array/entryvalue_access_update" 
         android:dialogTitle="@string/menu_access_update" 
         android:key="@string/pfkey_access" android:enabled="true"/>
-    <ListPreference android:summary="@string/summary_widget_update"
+        
+    
+    
+        <ListPreference android:summary="@string/summary_widget_update"
          android:title="@string/menu_widget_update" 
          android:entries="@array/entries_widget_update" 
          android:entryValues="@array/entryvalue_widget_update" 
@@ -27,6 +30,9 @@
          android:key="@string/pfkey_widget" 
          android:enabled="true"/>
     </PreferenceCategory>
+    
+     
+   
     <PreferenceCategory android:title="@string/category_else">
         <Preference android:title="@string/menu_about" 
         android:summary="@string/summary_about" android:key="@string/pfkey_about" android:enabled="true"/>

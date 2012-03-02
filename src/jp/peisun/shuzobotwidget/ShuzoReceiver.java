@@ -13,7 +13,6 @@ public class ShuzoReceiver extends BroadcastReceiver{
 		// TODO 自動生成されたメソッド・スタブ
 		String action = intent.getAction();
 		if(action.equals(Intent.ACTION_BOOT_COMPLETED)){
-			
 		}
 
 		else if(action.equals(Intent.ACTION_USER_PRESENT)){

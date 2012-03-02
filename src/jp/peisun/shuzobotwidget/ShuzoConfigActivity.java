@@ -1,17 +1,12 @@
 package jp.peisun.shuzobotwidget;
 
 
-import java.io.File;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 
-import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -67,12 +62,12 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 			mConfig.accessUpdateTime = Long.parseLong(newValue.toString());
 			String summary = SummaryfindById(R.array.entries_access_time,
 	        		R.array.entryvalue_access_update,mConfig.accessUpdateTime);
-			String newTitle = String.format("%s %s", getString(R.string.menu_access_update),summary);
-			listpref.setTitle(newTitle);
 			if(mConfig.accessUpdateTime < 0){
 				listpref.setSummary(getString(R.string.summary_update_type_user));
 			}
-	        //listpref.setSummary(summary); 
+			else {
+				listpref.setSummary(String.format("%s %s",summary, getString(R.string.summary_update_type_auto)));
+			}
 	        mConfig.CommitConfig();
 	        
 	        sendIntentConfig(ConfigData.Order.ORDER_ACCESS_UPDATE);
@@ -88,9 +83,7 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 			mConfig.widgetUpdateTime = Long.parseLong(newValue.toString());
 	        String summary = SummaryfindById(R.array.entries_widget_update,
 	        		R.array.entryvalue_widget_update,mConfig.widgetUpdateTime);
-	        String newTitle = String.format("%s %s", getString(R.string.menu_widget_update),summary);
-	        listpref.setTitle(newTitle);
-	        //listpref.setSummary(summary); 
+	        listpref.setSummary(String.format("%s%s",summary, getString(R.string.summary_widget_update))); 
 	        mConfig.CommitConfig();
 	        
 	        sendIntentConfig(ConfigData.Order.ORDER_WIDGET_UPDATE);
@@ -165,11 +158,13 @@ public class ShuzoConfigActivity extends PreferenceActivity {
         pref.setOnPreferenceChangeListener(onPreferenceChangeListener_accessUpdate);
         String summary = SummaryfindById(R.array.entries_access_time,
         		R.array.entryvalue_access_update,mConfig.accessUpdateTime);
-		String newTitle = String.format("%s %s", getString(R.string.menu_access_update),summary);
-		pref.setTitle(newTitle);
-		pref.setDefaultValue((Object)new Long(mConfig.accessUpdateTime).toString());
+        pref.setDefaultValue((Object)new Long(mConfig.accessUpdateTime).toString());
 		if(mConfig.accessUpdateTime < 0){
 			pref.setSummary(getString(R.string.summary_update_type_user));
+		}
+		else {
+			pref.setSummary(String.format("%s%s",summary,getString(R.string.summary_update_type_auto)));
+			
 		}
 		Log.d(TAG,"access update "+ mConfig.accessUpdateTime + " summary " + summary);
         
@@ -182,8 +177,7 @@ public class ShuzoConfigActivity extends PreferenceActivity {
         	summary = getString(R.string.defaulEntreisWidgetUpdate);
         	mConfig.widgetUpdateTime = Long.parseLong(getString(R.string.defaultValueWidgetUpdate));
         }
-        newTitle = String.format("%s %s", getString(R.string.menu_widget_update),summary);
-        pref.setTitle(newTitle);
+        pref.setSummary(String.format("%s%s",summary, getString(R.string.summary_widget_update)));
         pref.setDefaultValue((Object)String.format("%d", mConfig.widgetUpdateTime));
         // リスナーを最後に設定して反映される  
         pref.setOnPreferenceChangeListener(onPreferenceChangeListener_widgetUpdate);

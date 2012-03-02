@@ -1,10 +1,7 @@
 package jp.peisun.shuzobotwidget;
 
-import java.io.BufferedReader;
+
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 
@@ -16,12 +13,7 @@ import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
 import twitter4j.*;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -69,11 +61,10 @@ public class ShuzobotwidgetActivity extends Activity implements OnClickListener 
 	@Override
 	public void onClick(View v) {
 		// TODO 自動生成されたメソッド・スタブ
-		if(v == (View)mBtnSignIn){
-			mRequestToken = doOauth(null);
-		}
-		else if(v == (View)mBtnConfig){
-			
+		if(v == (View)mBtnConfig){
+			Intent i = new Intent(this,ShuzoConfigActivity.class);
+			i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+			startActivity(i);
 		}
 		
 	}
@@ -81,14 +72,14 @@ public class ShuzobotwidgetActivity extends Activity implements OnClickListener 
 	protected void onNewIntent(Intent intent) {
 		// TODO 自動生成されたメソッド・スタブ
 		super.onNewIntent(intent);
-		String action = intent.getAction();
-		if(action.equals(TwitterAccessService.INTENT_IS_SHUZO)){
-			boolean is = intent.getBooleanExtra(TwitterAccessService.SHUZO, false);
-			if(is == false){
-				showShuzoConsentFollowDialog();
-			}
+		String action;
+		if(intent == null){
+			action = null;
 		}
-		else if(action.equals("android.intent.action.VIEW")){
+		else {
+			action = intent.getAction();
+		}
+		if(action.equals("android.intent.action.VIEW")){
 			Uri uri = intent.getData();
 			if(uri != null && uri.toString().startsWith(CALLBACK_URL)){
 				AccessToken accessToken = getTwitterAccessToken(uri,mRequestToken);
@@ -162,22 +153,7 @@ public class ShuzobotwidgetActivity extends Activity implements OnClickListener 
 		Log.d(TAG,"認証成功");
 		return accessToken;
 	}
-	 
-	private void showShuzoConsentFollowDialog(){
-		AlertDialog.Builder dlg = new AlertDialog.Builder(this);
 
-		dlg.setMessage(getString(R.string.consentfollow_message));
-		dlg.setPositiveButton("OK", new DialogInterface.OnClickListener(){
-			@Override
-			public void onClick(DialogInterface arg0, int arg1) {
-				// TODO 自動生成されたメソッド・スタブ
-				Intent intent = new Intent(TwitterAccessService.INTENT_FOLLOW_SHUZO);
-				startService(intent);
-				arg0.dismiss();
-			}
-
-		});
-	}
 	private void writeAccessToken (AccessToken accessToken)throws Exception {
     	if(accessToken == null ){
     		return ;
