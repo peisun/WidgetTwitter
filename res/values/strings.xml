@@ -3,6 +3,8 @@
 
     <string name="hello">Hello World, ShuzobotwidgetActivity!</string>
     <string name="app_name">1修造が言う</string>
+    <string name="widget_14">1修造が言う（1×4）</string>
+    <string name="widget_23">1修造が言う（2×3）</string>
     <string name="buttn_config">設定</string>
     <string name="twitter_null_message">大丈夫だ！何度でもやり直すんだ！設定を見直すんだ！</string>
     <string name="pleaseanother_createFrinedship">ブラウザか別のアプリケーションnフォローしてください。</string>

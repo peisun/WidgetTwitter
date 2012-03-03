@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/linearLayout144_1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" 
+         android:baselineAligned="false"
+        android:maxHeight="146dp"
+		android:maxWidth="222dp">
+<!--  
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:background="@drawable/shuzoboticon"/>
+            -->
+
+        <ImageView
+            android:id="@+id/imageView144_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:src="@drawable/shuzo48"
+            android:contentDescription="@string/contentDescription" 
+            />
+<!--  
+        <ImageButton
+            android:id="@+id/imageButton1"
+            android:layout_width="74dp"
+            android:layout_height="74dp"
+            android:layout_weight="0"
+            android:contentDescription="@string/contentDescription"
+            android:src="@drawable/shuzoboticon" 
+            />
+-->
+	<RelativeLayout
+	    android:id="@+id/relativeLayout144"
+	    android:layout_width="wrap_content"
+	    android:layout_height="146dp"
+	    android:layout_weight="1" >
+
+		<LinearLayout
+		    android:id="@+id/linearLayout144_2"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		     >
+
+			<ImageView
+			    android:id="@+id/imageView_left_144"
+			    android:layout_width="wrap_content"
+			    android:layout_height="146dp"
+			    android:layout_weight="1"
+			    android:scaleType="fitXY"
+			    android:contentDescription="@string/contentDescription"
+			    android:src="@drawable/fukidasi144_left" />
+
+			<ImageView
+			    android:id="@+id/imageView_center_144"
+			    android:layout_width="match_parent"
+			    android:layout_height="146dp"
+			    android:layout_weight="1"
+			    android:contentDescription="@string/contentDescription"
+			    android:fitsSystemWindows="true"
+			    android:scaleType="fitXY"
+			    android:src="@drawable/fukidasi144_center" />
+			<ImageView
+			    android:id="@+id/imageView_right_144"
+			    android:layout_width="wrap_content"
+			    android:layout_height="146dp"
+			    android:layout_weight="1"
+			    android:layout_gravity="left"
+			    android:scaleType="fitXY"
+			    android:contentDescription="@string/contentDescription"
+			    android:src="@drawable/fukidasi144_right" />
+		</LinearLayout>
+
+		<TextView
+		    android:id="@+id/textView144"
+		    android:layout_width="match_parent"
+		    android:layout_height="match_parent"
+		    android:gravity="left"
+		    android:text="@string/init_message"
+		    android:textColor="#000000"
+		    android:textSize="9dp"
+		    android:textStyle="bold" 
+		    android:layout_marginLeft="5dp" 
+		    android:layout_marginRight="2dp"
+		    android:layout_marginTop="5dp" 
+		    android:layout_marginBottom="5dp"/>
+
+	</RelativeLayout>
+
+    </LinearLayout>

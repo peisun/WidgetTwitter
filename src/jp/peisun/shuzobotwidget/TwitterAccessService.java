@@ -68,6 +68,10 @@ public class TwitterAccessService extends Service {
 	public final static String OAUTH = "oauth";
 	public final static String SCREEN = "screen";
 	public final static String WIDGET_ID ="WidgetID";
+	public final static String WIDGET_TYPE ="wiget_type";
+	public final static int WIDGET_TYPE_1 = 1;
+	public final static int WIDGET_TYPE_2 = 2;
+	private int mWidgetType = 0;
 
 	public static volatile ConfigData mConfig = null;
 
@@ -128,6 +132,7 @@ public class TwitterAccessService extends Service {
 		if(action.equals(INTENT_START)){
 			int widgetId = intent.getIntExtra(WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 			mWidgetIdList.add(new Integer(widgetId));
+			mWidgetType = intent.getIntExtra(WIDGET_TYPE, WIDGET_TYPE_1);
 			setClickPendingIntent(widgetId);
 			
 			if(mConfig.isAccessToken() == true && mTwitter == null){
@@ -437,11 +442,22 @@ public class TwitterAccessService extends Service {
 		}
 		Log.d(TAG,"appWidgetId = "+ appWidgetId);
 
-		RemoteViews remoteViews = new RemoteViews(getPackageName(), R.layout.layoutwidget);
-		remoteViews.setTextViewText(R.id.textView1, text);
+		
 		
 		// AppWidgetの画面更新
-		ComponentName thisWidget = new ComponentName(this, ShuzobotAppWidgetProvider.class);
+		ComponentName thisWidget;
+		RemoteViews remoteViews;
+		if(mWidgetType == WIDGET_TYPE_1){
+			remoteViews = new RemoteViews(getPackageName(), R.layout.layoutwidget);
+			remoteViews.setTextViewText(R.id.textView1, text);
+			thisWidget = new ComponentName(this, ShuzobotAppWidgetProvider.class);
+		}
+		else {
+			remoteViews = new RemoteViews(getPackageName(), R.layout.layoutwidget144);
+			remoteViews.setTextViewText(R.id.textView144, text);
+			thisWidget = new ComponentName(this, ShuzobotAppWidgetProvider23.class);
+		}
+		
 		AppWidgetManager manager = AppWidgetManager.getInstance(this);
 		manager.updateAppWidget(thisWidget, remoteViews);
 		//manager.updateAppWidget(appWidgetId, remoteViews);
@@ -534,7 +550,8 @@ public class TwitterAccessService extends Service {
 				mHandler.scrrenOff();
 			}
 		}, filter);
-		
+		mConfig = new ConfigData();
+		mConfig.getSharedPreferences(getApplicationContext());
 //		
 //		String[] a = {"あ","い","う","え","お"};
 //		int i=0;
@@ -555,13 +572,21 @@ public class TwitterAccessService extends Service {
 	private void setClickPendingIntent(int widgetId){
 		if(widgetId != AppWidgetManager.INVALID_APPWIDGET_ID){
 			Log.d(TAG,"setClickPendingIntent wWidgetId " +widgetId);
-			RemoteViews views = new RemoteViews(getPackageName(),R.layout.layoutwidget);
+			RemoteViews views;
 			Intent configIntent = new Intent(INTENT_CLICK);
 			Intent updateIntent = new Intent(INTENT_CLICK_GET);
 			PendingIntent pendingConfigIntent = PendingIntent.getService(this, 0, configIntent, 0);
 			PendingIntent pendingUpdateIntent = PendingIntent.getService(this, 0, updateIntent, 0);
-			views.setOnClickPendingIntent(R.id.imageView1, pendingConfigIntent);
-			views.setOnClickPendingIntent(R.id.relativeLayout1, pendingUpdateIntent);
+			if(mWidgetType == WIDGET_TYPE_1){
+				views = new RemoteViews(getPackageName(),R.layout.layoutwidget);
+				views.setOnClickPendingIntent(R.id.imageView1, pendingConfigIntent);
+				views.setOnClickPendingIntent(R.id.relativeLayout1, pendingUpdateIntent);
+			}
+			else {
+				views = new RemoteViews(getPackageName(),R.layout.layoutwidget144);
+				views.setOnClickPendingIntent(R.id.imageView144_icon, pendingConfigIntent);
+				views.setOnClickPendingIntent(R.id.relativeLayout144, pendingUpdateIntent);
+			}
 			AppWidgetManager manager = AppWidgetManager.getInstance(this);
 
 			//ComponentName widget = new ComponentName(this,ShuzobotAppWidgetProvider.class);

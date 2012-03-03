@@ -10,7 +10,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-public class ShuzobotAppWidgetProvider extends AppWidgetProvider {
+public class ShuzobotAppWidgetProvider23 extends AppWidgetProvider {
 	private final static String TAG = "ShuzobotAppWidgetProvider";
 	public final static String INTENT_STATUS = "jp.peisun.shuzobotwidget.status";
 	public final static String TWEET_STATUS = "status";
@@ -23,7 +23,6 @@ public class ShuzobotAppWidgetProvider extends AppWidgetProvider {
         	int appWidgetId = appWidgetIds[i];
         	Intent intent = new Intent(TwitterAccessService.INTENT_STOP);
         	intent.putExtra(TwitterAccessService.INTENT_STOP, appWidgetId);
-        	
         	context.startService(intent);
         }
 		super.onDeleted(context, appWidgetIds);
@@ -44,9 +43,9 @@ public class ShuzobotAppWidgetProvider extends AppWidgetProvider {
 		final int N = appWidgetIds.length;
         for (int i=0; i<N; i++) {
         	RemoteViews views = new RemoteViews(context.getPackageName(),
-        			R.layout.layoutwidget);
+        			R.layout.layoutwidget144);
         	if(mTweet != null){
-        		views.setTextViewText(R.id.textView1, mTweet);
+        		views.setTextViewText(R.id.textView144, mTweet);
         	}
         	
 //        	views.setImageViewResource(R.id.imageView1, R.drawable.fukidasi001);
@@ -55,7 +54,7 @@ public class ShuzobotAppWidgetProvider extends AppWidgetProvider {
         	
         	Intent intent = new Intent(TwitterAccessService.INTENT_START);
         	intent.putExtra(TwitterAccessService.WIDGET_ID, appWidgetId);
-        	intent.putExtra(TwitterAccessService.WIDGET_TYPE, TwitterAccessService.WIDGET_TYPE_1);
+        	intent.putExtra(TwitterAccessService.WIDGET_TYPE, TwitterAccessService.WIDGET_TYPE_2);
         	context.startService(intent);
         	
         	appWidgetManager.updateAppWidget(appWidgetId, views);
@@ -83,12 +82,12 @@ public class ShuzobotAppWidgetProvider extends AppWidgetProvider {
 	public static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
             int appWidgetId, String text) {
         Log.d(TAG, "updateAppWidget appWidgetId=" + appWidgetId + " text=" + text);
-        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layoutwidget);
-		remoteViews.setTextViewText(R.id.textView1, text);
+        RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layoutwidget144);
+		remoteViews.setTextViewText(R.id.textView144, text);
 		//remoteViews.setImageViewResource(R.id.imageView1,R.drawable.icon01);
 		//remoteViews.setImageViewResource(R.id.imageView2, R.drawable.fukidasi001);
 		// AppWidgetの画面更新
-		ComponentName thisWidget = new ComponentName(context, ShuzobotAppWidgetProvider.class);
+		ComponentName thisWidget = new ComponentName(context, ShuzobotAppWidgetProvider23.class);
 		AppWidgetManager manager = AppWidgetManager.getInstance(context);
 		manager.updateAppWidget(thisWidget, remoteViews);
     }

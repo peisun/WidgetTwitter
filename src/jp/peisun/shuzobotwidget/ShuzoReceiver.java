@@ -13,8 +13,10 @@ public class ShuzoReceiver extends BroadcastReceiver{
 		// TODO 自動生成されたメソッド・スタブ
 		String action = intent.getAction();
 		if(action.equals(Intent.ACTION_BOOT_COMPLETED)){
+			Log.d(TAG,Intent.ACTION_BOOT_COMPLETED);
+			Intent i = new Intent(TwitterAccessService.INTENT_WIDGET_UPDATE);
+			context.startService(i);
 		}
-
 		else if(action.equals(Intent.ACTION_USER_PRESENT)){
 			Log.d(TAG,Intent.ACTION_USER_PRESENT);
 			Intent i = new Intent(TwitterAccessService.INTENT_WIDGET_UPDATE);

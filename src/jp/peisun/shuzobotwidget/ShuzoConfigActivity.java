@@ -319,17 +319,7 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 		mConfig.CommitConfig();
 		startService(i);
 	}
-	private void widgetSetResult(int result){
-		// AppWidgetの画面更新
-		final Context context = ShuzoConfigActivity.this;
-		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-		RemoteViews views = new RemoteViews(getPackageName(), R.layout.layoutwidget);
-		ShuzobotAppWidgetProvider.updateAppWidget(context, appWidgetManager,mAppWidgetId, "ほむほむ");
-		appWidgetManager.updateAppWidget(mAppWidgetId, views);
-		Intent resultValue = new Intent();
-		resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-		setResult(result, resultValue);
-	}
+
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		// TODO 自動生成されたメソッド・スタブ
