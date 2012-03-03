@@ -13,7 +13,7 @@
 	<string name="gettimeline_message">修造ゲットだぜぇぇぇぇぇぇぇ!</string>
 	<string name="fileerror_message">人生いくらでもやり直すことはできるぞ！データを消去してもう一度SignInだ！俺についてこい！！</string>
 	<string name="errorGetTimeline">Networkがおかしいぞ！足腰を鍛えば強くなれる！フットワークを軽くすれば、絶対追いつけるぞ！</string>
-
+	<string name="errorWidgetAlready">二兎を追うもの一頭も得ずだ！複数のウィジットは設定できないんだ。ひとつのことに集中だ!</string>
 	<!-- PreferenceKey -->
 	<string name="pfkey_signin">signin</string>
 	<string name="pfkey_wifiony">wifionly</string>

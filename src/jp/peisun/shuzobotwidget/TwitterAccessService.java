@@ -132,6 +132,10 @@ public class TwitterAccessService extends Service {
 		if(action.equals(INTENT_START)){
 			int widgetId = intent.getIntExtra(WIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 			mWidgetIdList.add(new Integer(widgetId));
+			if(mWidgetType != 0){
+				showToast(getString(R.string.errorWidgetAlready));
+				return START_NOT_STICKY;
+			}
 			mWidgetType = intent.getIntExtra(WIDGET_TYPE, WIDGET_TYPE_1);
 			setClickPendingIntent(widgetId);
 			
@@ -172,6 +176,7 @@ public class TwitterAccessService extends Service {
 				mTwitter.shutdown();
 				mTwitter = null;
 			}
+			mWidgetType = 0;
 			stopSelf();
 			return START_NOT_STICKY;
 		}
@@ -244,6 +249,7 @@ public class TwitterAccessService extends Service {
 		return START_STICKY;
 		//return super.onStartCommand(intent, flags, startId);
 	}
+	
 	private int getIntentExtra(Intent intent){
 
 		mConfig.wifionly = intent.getBooleanExtra(ConfigData.PF_WIFIONLY, mConfig.wifionly);
