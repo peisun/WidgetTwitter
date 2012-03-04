@@ -154,11 +154,9 @@ public class ShuzoConfigActivity extends PreferenceActivity {
         // 更新時間
         cs = getText(R.string.pfkey_access);  
         pref = (Preference)findPreference(cs);   
-        // リスナーを設定する  
-        pref.setOnPreferenceChangeListener(onPreferenceChangeListener_accessUpdate);
         String summary = SummaryfindById(R.array.entries_access_time,
         		R.array.entryvalue_access_update,mConfig.accessUpdateTime);
-        pref.setDefaultValue((Object)new Long(mConfig.accessUpdateTime).toString());
+        pref.setDefaultValue((Object)String.format("%d", mConfig.accessUpdateTime));
 		if(mConfig.accessUpdateTime < 0){
 			pref.setSummary(getString(R.string.summary_update_type_user));
 		}
@@ -166,6 +164,9 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 			pref.setSummary(String.format("%s%s",summary,getString(R.string.summary_update_type_auto)));
 			
 		}
+		// リスナーを設定する  
+        pref.setOnPreferenceChangeListener(onPreferenceChangeListener_accessUpdate);
+        
 		Log.d(TAG,"access update "+ mConfig.accessUpdateTime + " summary " + summary);
         
         // 表示間隔

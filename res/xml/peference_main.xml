@@ -18,7 +18,7 @@
         android:entries="@array/entries_access_time" 
         android:entryValues="@array/entryvalue_access_update" 
         android:dialogTitle="@string/menu_access_update" 
-        android:key="@string/pfkey_access" android:enabled="true"/>
+        android:key="@string/pfkey_access" android:enabled="true" android:defaultValue="@string/defaultValueAccessUpdate"/>
         
     
     
@@ -28,7 +28,7 @@
          android:entryValues="@array/entryvalue_widget_update" 
          android:dialogTitle="@string/menu_widget_update" 
          android:key="@string/pfkey_widget" 
-         android:enabled="true"/>
+         android:enabled="true" android:defaultValue="@string/defaultValueWidgetUpdate"/>
     </PreferenceCategory>
     
      

@@ -9,7 +9,7 @@
     <string name="twitter_null_message">大丈夫だ！何度でもやり直すんだ！設定を見直すんだ！</string>
     <string name="pleaseanother_createFrinedship">ブラウザか別のアプリケーションnフォローしてください。</string>
 	<string name="init_message">あわてるな！人生待つことも大事だ！でも熱い心は忘れるな！</string>
-	<string name="signin_message">アイコンをタップしてサインインだ！</string>
+	<string name="signin_message">アイコンをクリックしてサインインだ！</string>
 	<string name="gettimeline_message">修造ゲットだぜぇぇぇぇぇぇぇ!</string>
 	<string name="fileerror_message">人生いくらでもやり直すことはできるぞ！データを消去してもう一度SignInだ！俺についてこい！！</string>
 	<string name="errorGetTimeline">Networkがおかしいぞ！足腰を鍛えば強くなれる！フットワークを軽くすれば、絶対追いつけるぞ！</string>
@@ -44,7 +44,7 @@
 	<string name="summary_wifionly_off">チェックするとWiFi接続時のみTwitterにアクセスします。</string>
 	<string name="summary_wifionly_on">チェックを外すといつでもTwitterにアクセスします。</string>
 	<string name="summary_access_update">間隔でTwitterにアクセスします。</string>
-	<string name ="summary_update_type_user">吹き出しをタップするとTwitterへアクセスします。</string>
+	<string name ="summary_update_type_user">アイコンをクリックするとTwitterへアクセスします。</string>
 	<string name="summary_update_type_auto">間隔でTwitterにアクセスします。</string>
 	<string name="summary_about">このアプリケーションについて、少しだけ説明します。</string>
 	<!-- デフォルト表示 -->
@@ -52,8 +52,8 @@
 	<!-- デフォルトvalue -->
 	<string name="defaultValuewifionly">true</string>
 	<string name="defaultValueUpdateType">true</string>
-	<string name="defaultEntreisAccessUpdate">30分</string>
-	<string name="defaultValueAccessUpdate">1800000</string>
+	<string name="defaultEntreisAccessUpdate">アイコンをクリック</string>
+	<string name="defaultValueAccessUpdate">-1</string>
 	<string name="defaulEntreisWidgetUpdate">30分</string>
 	<string name="defaultValueWidgetUpdate">1800000</string>
 	
