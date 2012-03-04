@@ -39,6 +39,14 @@ public class ShuzobotwidgetActivity extends Activity implements OnClickListener 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
+        ConfigData config = new ConfigData();
+        config.getSharedPreferences(getApplicationContext());
+        if(config.isAccessToken()==true){
+        	Intent i = new Intent(this,ShuzoConfigActivity.class);
+        	startActivity(i);
+        	finish();
+        }
+        
         
         mBtnConfig = (Button)findViewById(R.id.button_config);
         mBtnConfig.setOnClickListener(this);

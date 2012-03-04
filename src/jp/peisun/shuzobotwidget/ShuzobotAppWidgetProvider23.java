@@ -23,6 +23,7 @@ public class ShuzobotAppWidgetProvider23 extends AppWidgetProvider {
         	int appWidgetId = appWidgetIds[i];
         	Intent intent = new Intent(TwitterAccessService.INTENT_STOP);
         	intent.putExtra(TwitterAccessService.INTENT_STOP, appWidgetId);
+        	intent.putExtra(TwitterAccessService.WIDGET_TYPE, TwitterAccessService.WIDGET_TYPE_2);
         	context.startService(intent);
         }
 		super.onDeleted(context, appWidgetIds);

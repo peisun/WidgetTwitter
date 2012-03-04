@@ -22,19 +22,15 @@ public class ShuzobotAppWidgetProvider extends AppWidgetProvider {
         for (int i=0; i<N; i++) {
         	int appWidgetId = appWidgetIds[i];
         	Intent intent = new Intent(TwitterAccessService.INTENT_STOP);
-        	intent.putExtra(TwitterAccessService.INTENT_STOP, appWidgetId);
+        	intent.putExtra(TwitterAccessService.WIDGET_ID, appWidgetId);
+        	intent.putExtra(TwitterAccessService.WIDGET_TYPE, TwitterAccessService.WIDGET_TYPE_1);
         	
         	context.startService(intent);
         }
 		super.onDeleted(context, appWidgetIds);
 	}
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		// TODO 自動生成されたメソッド・スタブ
 
-		super.onReceive(context, intent);
-	}
 
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
