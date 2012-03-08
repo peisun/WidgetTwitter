@@ -90,32 +90,20 @@ public class TwitterAccessService extends Service {
 	class WidgetArray {
 
 		private ArrayList<Widget> mArray = new ArrayList<Widget>();
+		private HashMap<Integer,Integer> mWidgetMap = new HashMap<Integer,Integer>();
 
 		public WidgetArray(){
 
 		}
 		public void put(Widget widget){
-			int n;
-			int size = mArray.size();
-			if(size == 0){
+			Integer type = mWidgetMap.get(new Integer(widget.Id));
+			if(type == null){
+				mWidgetMap.put(new Integer(widget.Id), new Integer(widget.Type));
 				mArray.add(widget);
-				Log.d(TAG,"mArray.add " + widget.Id+ " "+ widget.Type);
-				Log.d(TAG,"mArray size " + mArray.size());
+				Log.d(TAG, "mArray.add "+ widget.Id +" "+widget.Type);
+				Log.d(TAG,"mArray.size " + mArray.size());
 			}
-			else {
-				for(n = 0; n < size; n++){
-					Widget w = mArray.get(n);
-					if(w.Id == widget.Id){
-						break;
-					}
-				}
-				if(n >= size){
-					mArray.add(new Widget(widget.Id,widget.Type));
-					Log.d(TAG,"mArray.add " + widget.Id+ " "+ widget.Type);
-					Log.d(TAG,"mArray size " + mArray.size());
-				}
-			}
-
+			
 		}
 		public Widget getRandom(){
 			Random r = new Random();
@@ -130,7 +118,7 @@ public class TwitterAccessService extends Service {
 			else {
 				int index = Math.abs(r.nextInt()) % size;
 
-				Log.d(TAG,"widgetArray index "+index+ "size of "+size);
+				Log.d(TAG,"widgetArray index "+index+ " size of "+size);
 				widget = mArray.get(index);
 
 			}
@@ -151,6 +139,7 @@ public class TwitterAccessService extends Service {
 				Widget w = mArray.get(n);
 				if(w.Id == widget){
 					mArray.remove(n);
+					mWidgetMap.remove(new Integer(widget));
 					break;
 				}
 			}
@@ -230,7 +219,10 @@ public class TwitterAccessService extends Service {
 			if(mWidgetArray == null){
 				mWidgetArray = new WidgetArray();	
 			}
-			mWidgetArray.put(new Widget(widgetId,widgetType));
+			if(widgetId != AppWidgetManager.INVALID_APPWIDGET_ID){
+				Log.d(TAG,INTENT_START+" widgetId "+widgetId+ "widgetType "+ widgetType);
+				mWidgetArray.put(new Widget(widgetId,widgetType));
+			}
 
 			if(mConfig.isAccessToken() == true ){
 				if(mTwitter == null){
@@ -304,8 +296,11 @@ public class TwitterAccessService extends Service {
 				}
 				int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 				int widgetType = intent.getIntExtra(WIDGET_TYPE, 0);
-				Widget widget = new Widget(widgetId,widgetType);
-				mWidgetArray.put(widget);
+				Log.d(TAG,INTENT_READ_SHUZO + " widgetId "+ widgetId + "widgetType "+widgetType);
+				if(widgetType != AppWidgetManager.INVALID_APPWIDGET_ID){
+					Widget widget = new Widget(widgetId,widgetType);
+					mWidgetArray.put(widget);
+				}
 				getShuzoBot();
 			}
 		}
@@ -314,8 +309,11 @@ public class TwitterAccessService extends Service {
 			if(mResponselist != null){
 				int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
 				int widgetType = intent.getIntExtra(WIDGET_TYPE, 0);
-				Widget widget = new Widget(widgetId,widgetType);
-				mWidgetArray.put(widget);
+				Log.d(TAG,INTENT_READ_SHUZO + " widgetId "+ widgetId + "widgetType "+widgetType);
+				if(widgetId != AppWidgetManager.INVALID_APPWIDGET_ID){
+					Widget widget = new Widget(widgetId,widgetType);
+					mWidgetArray.put(widget);
+				}
 				actionWidgetUpdate();
 			}
 		}

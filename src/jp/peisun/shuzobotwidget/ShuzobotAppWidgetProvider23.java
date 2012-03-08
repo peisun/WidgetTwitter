@@ -13,8 +13,7 @@ import android.widget.RemoteViews;
 
 public class ShuzobotAppWidgetProvider23 extends AppWidgetProvider {
 	private final static String TAG = "ShuzobotAppWidgetProvider";
-	private Intent mWidgetupdateIntent = new Intent(TwitterAccessService.INTENT_WIDGET_UPDATE);
-	private Intent mReadShuzoIntent = new Intent(TwitterAccessService.INTENT_READ_SHUZO);
+	
 	private String mTweet = null;
 	@Override
 	public void onDeleted(Context context, int[] appWidgetIds) {
@@ -46,8 +45,13 @@ public class ShuzobotAppWidgetProvider23 extends AppWidgetProvider {
 //        	views.setImageViewResource(R.id.imageView1, R.drawable.fukidasi001);
 //        	ComponentName cn = new ComponentName(context, ShuzobotAppWidgetProvider.class);
         	int appWidgetId = appWidgetIds[i];
+        	Intent mWidgetupdateIntent = new Intent(context,TwitterAccessService.class);
+        	mWidgetupdateIntent.setAction(TwitterAccessService.INTENT_WIDGET_UPDATE);
         	mWidgetupdateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         	mWidgetupdateIntent.putExtra(TwitterAccessService.WIDGET_TYPE, TwitterAccessService.WIDGET_TYPE_2);
+        	
+        	Intent mReadShuzoIntent = new Intent(context,TwitterAccessService.class);
+        	mReadShuzoIntent.setAction(TwitterAccessService.INTENT_READ_SHUZO);
         	mReadShuzoIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         	mReadShuzoIntent.putExtra(TwitterAccessService.WIDGET_TYPE, TwitterAccessService.WIDGET_TYPE_2);
         	
