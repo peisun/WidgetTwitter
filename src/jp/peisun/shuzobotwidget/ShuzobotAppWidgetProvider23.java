@@ -2,6 +2,7 @@ package jp.peisun.shuzobotwidget;
 
 
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
@@ -12,8 +13,8 @@ import android.widget.RemoteViews;
 
 public class ShuzobotAppWidgetProvider23 extends AppWidgetProvider {
 	private final static String TAG = "ShuzobotAppWidgetProvider";
-	public final static String INTENT_STATUS = "jp.peisun.shuzobotwidget.status";
-	public final static String TWEET_STATUS = "status";
+	private Intent mWidgetupdateIntent = new Intent(TwitterAccessService.INTENT_WIDGET_UPDATE);
+	private Intent mReadShuzoIntent = new Intent(TwitterAccessService.INTENT_READ_SHUZO);
 	private String mTweet = null;
 	@Override
 	public void onDeleted(Context context, int[] appWidgetIds) {
@@ -23,18 +24,11 @@ public class ShuzobotAppWidgetProvider23 extends AppWidgetProvider {
         	int appWidgetId = appWidgetIds[i];
         	Intent intent = new Intent(TwitterAccessService.INTENT_STOP);
         	intent.putExtra(TwitterAccessService.INTENT_STOP, appWidgetId);
-        	intent.putExtra(TwitterAccessService.WIDGET_TYPE, TwitterAccessService.WIDGET_TYPE_2);
         	context.startService(intent);
         }
 		super.onDeleted(context, appWidgetIds);
 	}
 
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		// TODO 自動生成されたメソッド・スタブ
-
-		super.onReceive(context, intent);
-	}
 
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager,
@@ -52,13 +46,25 @@ public class ShuzobotAppWidgetProvider23 extends AppWidgetProvider {
 //        	views.setImageViewResource(R.id.imageView1, R.drawable.fukidasi001);
 //        	ComponentName cn = new ComponentName(context, ShuzobotAppWidgetProvider.class);
         	int appWidgetId = appWidgetIds[i];
+        	mWidgetupdateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        	mWidgetupdateIntent.putExtra(TwitterAccessService.WIDGET_TYPE, TwitterAccessService.WIDGET_TYPE_2);
+        	mReadShuzoIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        	mReadShuzoIntent.putExtra(TwitterAccessService.WIDGET_TYPE, TwitterAccessService.WIDGET_TYPE_2);
+        	
+        	
+    		PendingIntent WidgetUpdatePendigIntent = PendingIntent.getService(context, appWidgetId, mWidgetupdateIntent, 0);
+    		PendingIntent ReadShuzoPendingIntent= PendingIntent.getService(context,appWidgetId, mReadShuzoIntent, 0);;
+
+    		views.setOnClickPendingIntent(R.id.imageView144_icon, ReadShuzoPendingIntent);
+			views.setOnClickPendingIntent(R.id.relativeLayout144, WidgetUpdatePendigIntent);
+        	
+
+        	appWidgetManager.updateAppWidget(appWidgetId, views);
         	
         	Intent intent = new Intent(TwitterAccessService.INTENT_START);
         	intent.putExtra(TwitterAccessService.WIDGET_ID, appWidgetId);
         	intent.putExtra(TwitterAccessService.WIDGET_TYPE, TwitterAccessService.WIDGET_TYPE_2);
         	context.startService(intent);
-        	
-        	appWidgetManager.updateAppWidget(appWidgetId, views);
         	Log.d(TAG, "updateAppWidget appWidgetId=" + appWidgetId );
 		
         }

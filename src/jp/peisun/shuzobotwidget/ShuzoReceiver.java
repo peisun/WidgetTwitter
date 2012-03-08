@@ -14,7 +14,7 @@ public class ShuzoReceiver extends BroadcastReceiver{
 		String action = intent.getAction();
 		if(action.equals(Intent.ACTION_BOOT_COMPLETED)){
 			Log.d(TAG,Intent.ACTION_BOOT_COMPLETED);
-			Intent i = new Intent(TwitterAccessService.INTENT_WIDGET_UPDATE);
+			Intent i = new Intent(TwitterAccessService.INTENT_START);
 			context.startService(i);
 		}
 		else if(action.equals(Intent.ACTION_USER_PRESENT)){

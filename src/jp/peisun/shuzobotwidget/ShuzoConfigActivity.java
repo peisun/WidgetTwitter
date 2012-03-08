@@ -204,7 +204,11 @@ public class ShuzoConfigActivity extends PreferenceActivity {
 		else {
 			action = intent.getAction();
 		}
-		if(action.equals("android.intent.action.VIEW")){
+		// どうもactionがnullのintentが来る場合がある
+		if(action == null){
+			return;
+		}
+		if(action.equals(Intent.ACTION_VIEW)){
 			Uri uri = intent.getData();
 			if(uri != null && uri.toString().startsWith(CALLBACK_URL)){
 				AccessToken accessToken = getTwitterAccessToken(uri,mRequestToken);
