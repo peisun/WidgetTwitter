@@ -306,15 +306,18 @@ public class TwitterAccessService extends Service {
 		}
 
 		else if(action.equals(INTENT_WIDGET_UPDATE)){
+			int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+			int widgetType = intent.getIntExtra(WIDGET_TYPE, 0);
+			Log.d(TAG,INTENT_READ_SHUZO + " widgetId "+ widgetId + "widgetType "+widgetType);
+			if(widgetId != AppWidgetManager.INVALID_APPWIDGET_ID){
+				Widget widget = new Widget(widgetId,widgetType);
+				mWidgetArray.put(widget);
+			}
 			if(mResponselist != null){
-				int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
-				int widgetType = intent.getIntExtra(WIDGET_TYPE, 0);
-				Log.d(TAG,INTENT_READ_SHUZO + " widgetId "+ widgetId + "widgetType "+widgetType);
-				if(widgetId != AppWidgetManager.INVALID_APPWIDGET_ID){
-					Widget widget = new Widget(widgetId,widgetType);
-					mWidgetArray.put(widget);
-				}
 				actionWidgetUpdate();
+			}
+			else {
+				getShuzoBot();
 			}
 		}
 		// Wifiの状態が変化したとき
